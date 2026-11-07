@@ -1,0 +1,22 @@
+title:
+  en: Threads and Indexing
+  zh: 线程与索引
+stages:
+  - slug: map
+    title: { en: Map, zh: 映射 }
+    status: draft
+  - slug: guards
+    title: { en: Guards, zh: 越界保护 }
+    status: wip
+  - slug: blocks
+    title: { en: Blocks, zh: 线程块 }
+    status: wip
+  - slug: relu
+    title: { en: ReLU, zh: ReLU }
+    status: wip
+  - slug: leaky-relu
+    title: { en: Leaky ReLU, zh: Leaky ReLU }
+    status: wip
+  - slug: conv-1d
+    title: { en: 1D Convolution, zh: 一维卷积 }
+    status: wip

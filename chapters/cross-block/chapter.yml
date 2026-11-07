@@ -1,0 +1,16 @@
+title:
+  en: Across Blocks
+  zh: 跨块协作
+stages:
+  - slug: atomic-sum
+    title: { en: Sum with atomicAdd, zh: 用 atomicAdd 求和 }
+    status: draft
+  - slug: array-max
+    title: { en: Array Max, zh: 数组最大值 }
+    status: wip
+  - slug: softmax
+    title: { en: Softmax, zh: Softmax }
+    status: draft
+  - slug: prefix-sum
+    title: { en: Prefix Sum Across Blocks, zh: 跨块前缀和 }
+    status: wip

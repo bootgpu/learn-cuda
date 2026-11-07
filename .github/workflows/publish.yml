@@ -1,0 +1,57 @@
+name: publish
+
+# Builds the course package and commits it to bootgpu/api's courses/ (its docs/00-design.md §7); the api's CI
+# checks it and deploys. Only on main, when something that goes into the package may have changed.
+on:
+  push:
+    branches: [main]
+    paths:
+      - course.yml
+      - bootgpu.toml
+      - "chapters/**"
+      - "problems/**"
+      - scripts/build.py
+      - scripts/validate.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: uv run scripts/build.py -o "$RUNNER_TEMP/package.json"
+
+      # API_DEPLOY_KEY: this repository's own write deploy key on bootgpu/api
+      - uses: actions/checkout@v4
+        with:
+          repository: bootgpu/api
+          ssh-key: ${{ secrets.API_DEPLOY_KEY }}
+          path: api
+          fetch-depth: 0
+
+      - name: Commit to bootgpu/api
+        working-directory: api
+        run: |
+          slug=$(jq -r .slug "$RUNNER_TEMP/package.json")
+          cp "$RUNNER_TEMP/package.json" "courses/$slug.json"
+          git add "courses/$slug.json"
+          if git diff --cached --quiet; then echo "unchanged"; exit 0; fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "courses: $slug at ${GITHUB_REPOSITORY}@${GITHUB_SHA::7}"
+          # another course may have pushed meanwhile
+          for i in 1 2 3; do
+            git push origin HEAD:main && exit 0
+            git pull -q --rebase origin main
+          done
+          exit 1

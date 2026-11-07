@@ -1,0 +1,16 @@
+title:
+  en: 2D Grids
+  zh: 二维线程网格
+stages:
+  - slug: map-2d
+    title: { en: 2D Map, zh: 二维映射 }
+    status: wip
+  - slug: blocks-2d
+    title: { en: 2D Blocks, zh: 二维线程块 }
+    status: wip
+  - slug: matrix-add
+    title: { en: Matrix Addition, zh: 矩阵加法 }
+    status: wip
+  - slug: add-row-bias
+    title: { en: Add Row Bias, zh: 每行加偏置 }
+    status: wip

@@ -1,0 +1,13 @@
+title:
+  en: Shared Memory and Sync
+  zh: 共享内存与同步
+stages:
+  - slug: block-reverse
+    title: { en: Block Reverse, zh: 块内反转 }
+    status: wip
+  - slug: pooling
+    title: { en: Pooling, zh: 池化 }
+    status: wip
+  - slug: conv-1d-shared
+    title: { en: 1D Convolution with Shared Memory, zh: 共享内存一维卷积 }
+    status: wip

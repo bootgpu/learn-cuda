@@ -1,0 +1,22 @@
+name: check
+
+# Lint and validate only; no secrets, so it is safe for pull requests from forks.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run scripts/validate.py
+      - run: uv run pytest -q

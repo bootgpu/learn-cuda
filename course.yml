@@ -1,0 +1,19 @@
+# 课程目录：篇 → 章的顺序。章内关卡与状态在 chapters/<slug>/chapter.yml。
+slug: learn-cuda-basics
+title:
+  en: CUDA Basics
+  zh: CUDA 入门
+summary:
+  en: "Learn CUDA one mechanism at a time, from your first kernel to tiled matrix multiplication: get it right first."
+  zh: 一题一个机制，从第一个 kernel 写到分块矩阵乘，先把 CUDA 写对。
+parts:
+  - title:
+      en: Getting It Right
+      zh: 写对
+    chapters:
+      - threads
+      - grids-2d
+      - shared-memory
+      - block-reduce-scan
+      - cross-block
+      - matmul

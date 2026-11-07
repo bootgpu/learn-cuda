@@ -1,0 +1,16 @@
+title:
+  en: Reduce and Scan in a Block
+  zh: 块内归约与扫描
+stages:
+  - slug: block-sum
+    title: { en: Block Sum, zh: 块内求和 }
+    status: wip
+  - slug: block-prefix-sum
+    title: { en: Block Prefix Sum, zh: 块内前缀和 }
+    status: wip
+  - slug: row-sum
+    title: { en: Row Sum, zh: 按行求和 }
+    status: wip
+  - slug: rms-norm
+    title: { en: RMSNorm, zh: RMSNorm }
+    status: wip
