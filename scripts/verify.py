@@ -53,7 +53,8 @@ class Client:
         """(200, gradeResponse); (503, busy) without response headers in 31 s or on expired; (0, ...) when the
         platform lost it; else the entry's error answer. A call lost before it ran is sent again once."""
         t0 = time.monotonic()
-        data = json.dumps({"mode": "submit", "deadline": time.time() + QUEUE_SEC} | body).encode()
+        sent = time.time()
+        data = json.dumps({"mode": "submit", "sentAt": sent, "deadline": sent + QUEUE_SEC} | body).encode()
         for attempt in (1, 2):
             left = HEADER_SEC - (time.monotonic() - t0)
             if left <= 0:

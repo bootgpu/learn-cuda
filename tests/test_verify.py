@@ -172,6 +172,7 @@ def test_client_reads_the_stream_to_its_result(entry):
     assert (headers["Modal-Key"], headers["Modal-Secret"]) == ("k", "s")
     assert (req["mode"], req["requestId"], req["code"]) == ("submit", "r1", "ok")
     assert 29 < req["deadline"] - time.time() <= 30
+    assert req["deadline"] - req["sentAt"] == verify.QUEUE_SEC
     assert client.versions == {"v1"}
 
 
