@@ -15,10 +15,12 @@ def course(bank, status="published"):
 def test_package(bank):
     root = course(bank)
     (bank / "README.md").write_text("# Map\n")
+    (bank / "LEARN.md").write_text("# Threads\n")
+    (bank / "LEARN.zh.md").write_text("# 线程\n")
     errors, pkg = build.build(root, "abc1234")
     assert errors == []
     assert {k: pkg[k] for k in ("schemaVersion", "slug", "kind", "sourceCommit", "runtime", "gpus")} == {
-        "schemaVersion": 3,
+        "schemaVersion": 4,
         "slug": "learn-demo",
         "kind": "learn",
         "sourceCommit": "abc1234",
@@ -31,9 +33,12 @@ def test_package(bank):
     ]
     assert list(pkg["stages"]) == ["map"]
     stage = pkg["stages"]["map"]
-    assert set(stage) == {"difficulty", "accessTier", "gpus", "statement", "starterCode", "problemPy"}
+    assert set(stage) == {
+        "difficulty", "accessTier", "gpus", "statement", "learn", "starterCode", "problemPy"
+    }
     assert stage["gpus"] == ["t4"]
     assert stage["statement"]["en"] == "# Map\n"
+    assert stage["learn"] == {"en": "# Threads\n", "zh": "# 线程\n"}
     assert stage["starterCode"] == [
         {
             "language": "cuda",

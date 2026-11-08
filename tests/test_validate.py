@@ -105,6 +105,11 @@ def test_stage(bank):
     assert "not a stage in any chapter.yml listed by course.yml" in validate.validate(other)
 
 
+def test_learn(bank):
+    (bank / "LEARN.zh.md").unlink()
+    assert validate.validate(bank) == ["LEARN.zh.md: missing"]
+
+
 def test_course(bank):
     root = bank.parent.parent
     chapter = root / "chapters/basics/chapter.yml"

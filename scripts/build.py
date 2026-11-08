@@ -18,7 +18,7 @@ from typing import Any
 import validate
 from validate import ROOT, SLUG, course_stages, read_yaml, title_errors
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 GPUS_ERROR = "bootgpu.toml: gpus must be a non-empty list of distinct GPU names"
 
 
@@ -56,6 +56,10 @@ def stage_package(problem_dir: Path, gpus: list[str]) -> dict:
         "statement": {
             "en": (problem_dir / "README.md").read_text(),
             "zh": (problem_dir / "README.zh.md").read_text(),
+        },
+        "learn": {
+            "en": (problem_dir / "LEARN.md").read_text(),
+            "zh": (problem_dir / "LEARN.zh.md").read_text(),
         },
         "starterCode": [
             {

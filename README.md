@@ -10,6 +10,7 @@ by [LeetGPU](https://github.com/AlphaGPU/leetgpu-challenges)'s challenges.
 course.yml, chapters/              course outline: chapters and their stages, in order
 problems/<slug>/
   README.md, README.zh.md          statement (English / Chinese)
+  LEARN.md, LEARN.zh.md            study notes (English / Chinese); TODO is fine for now
   problem.py                       reference implementation, signature and test cases
   starter/cuda/solution.cu         starter code
 bootgpu.toml                       runtime, GPUs and time limit

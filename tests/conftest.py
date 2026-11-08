@@ -32,6 +32,8 @@ def bank(tmp_path: Path) -> Path:
     (p / "problem.yml").write_text("title:\n  en: Map\n  zh: 映射\ndifficulty: easy\n")
     (p / "README.md").write_text("")
     (p / "README.zh.md").write_text("")
+    (p / "LEARN.md").write_text("TODO\n")
+    (p / "LEARN.zh.md").write_text("TODO\n")
     return p
 
 

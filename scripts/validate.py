@@ -24,10 +24,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+LEARN = ("LEARN.md", "LEARN.zh.md")
 FILES = (
     "problem.yml",
     "README.md",
     "README.zh.md",
+    *LEARN,
     "problem.py",
     "starter/cuda/solution.cu",
 )
