@@ -19,7 +19,7 @@ stages:
 @pytest.fixture
 def bank(tmp_path: Path) -> Path:
     """A one-chapter course with a valid problem 'map'; returns the problem dir."""
-    (tmp_path / "bootgpu.toml").write_text('kind = "learn"\nruntime = "cuda@1"\ntimeout_sec = 30\n')
+    (tmp_path / "bootgpu.toml").write_text('kind = "learn"\nruntime = "cuda@1"\n')
     (tmp_path / "course.yml").write_text(
         "slug: learn-demo\nparts:\n  - title: { en: Part, zh: 篇 }\n    chapters: [basics]\n"
     )

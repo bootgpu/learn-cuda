@@ -49,7 +49,9 @@ def test_all_as_declared(bank, sol, capsys):
     client = FakeClient(dict(ANSWERS))
     assert verify.verify(bank, sol, "cuda@1", client)
     assert len(client.calls) == 3 * verify.RUNS
-    assert {(c["runtime"], c["language"], c["timeoutSec"]) for c in client.calls} == {("cuda@1", "cuda", 30)}
+    assert {(c["runtime"], c["language"], c["timeoutSec"]) for c in client.calls} == {
+        ("cuda@1", "cuda", verify.TIMEOUT_SEC)
+    }
     assert all(re.fullmatch(r"[A-Za-z0-9_-]{1,64}", c["requestId"]) for c in client.calls)
     assert len({c["requestId"] for c in client.calls}) == len(client.calls)
     out = capsys.readouterr().out
@@ -76,14 +78,6 @@ def test_bad_requests_are_not_retried(bank, sol, capsys):
     assert not verify.verify(bank, sol, "cuda@1", client)
     assert len(client.calls) == 3 * verify.RUNS
     assert "http 400: bad requestId" in capsys.readouterr().out
-
-
-def test_course_timeout_is_required(bank, sol, capsys):
-    (bank.parent.parent / "bootgpu.toml").write_text('runtime = "cuda@1"\ntimeout_sec = 41\n')
-    client = FakeClient(ANSWERS)
-    assert not verify.verify(bank, sol, "cuda@1", client)
-    assert "timeout_sec must be an integer from 1 to 40" in capsys.readouterr().err
-    assert client.calls == []
 
 
 def test_unknown_runtime_is_not_graded(bank, sol, capsys):

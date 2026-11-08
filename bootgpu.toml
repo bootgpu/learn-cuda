@@ -4,5 +4,3 @@ kind = "learn"
 runtime = "cuda@1"
 # GPUs a submission may run on, for the course package (scripts/build.py); the first is the default. MVP: T4 only.
 gpus = ["t4"]
-# Seconds per submission, nvcc and imports included; the sandbox allows 1-40.
-timeout_sec = 40

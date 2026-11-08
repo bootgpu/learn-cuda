@@ -59,7 +59,7 @@ def test_no_performance(bank):
 
 def test_kind(bank):
     root = bank.parent.parent
-    (root / "bootgpu.toml").write_text('kind = "peak"\nruntime = "cuda@1"\ntimeout_sec = 30\n')
+    (root / "bootgpu.toml").write_text('kind = "peak"\nruntime = "cuda@1"\n')
     (root / "course.yml").write_text((root / "course.yml").read_text().replace("learn-demo", "demo"))
     assert validate.validate_course(root) == [
         'bootgpu.toml: kind must be "learn"',
@@ -113,14 +113,13 @@ def test_course(bank):
     )
     (root / "chapters/extra").mkdir()
     (root / "chapters/extra/chapter.yml").write_text("title: { en: X, zh: X }\nstages: []\n")
-    (root / "bootgpu.toml").write_text('runtime = "cuda@1"\ntimeout_sec = 41\n')
+    (root / "bootgpu.toml").write_text('runtime = "cuda@1"\n')
     errors = validate.validate_course(root)
-    assert len(errors) == 5, errors
+    assert len(errors) == 4, errors
     for part in [
         "chapters/extra: not listed",
         "stages[1]: slug must be",
         "stage later is published but problems/later is missing",
-        "bootgpu.toml: timeout_sec",
         "bootgpu.toml: kind",
     ]:
         assert any(part in e for e in errors), part

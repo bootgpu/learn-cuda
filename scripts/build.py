@@ -18,7 +18,7 @@ from typing import Any
 import validate
 from validate import ROOT, SLUG, course_stages, read_yaml, title_errors
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 GPUS_ERROR = "bootgpu.toml: gpus must be a non-empty list of distinct GPU names"
 
 
@@ -110,7 +110,6 @@ def build(root: Path, commit: str) -> tuple[list[str], dict | None]:
         "title": course["title"],
         "summary": course["summary"],
         "runtime": toml["runtime"],
-        "timeoutSec": toml["timeout_sec"],
         "gpus": gpus,
         "parts": parts,
         "stages": {

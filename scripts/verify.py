@@ -34,6 +34,7 @@ WORKERS = 4
 ATTEMPTS = 3
 RETRY_SEC = 10
 PASSED = ("finished", None, "PASSED", None, None)
+TIMEOUT_SEC = 15  # T of a learn submit in bootgpu-api (its docs/00-design.md §3.1)
 QUEUE_SEC = 30  # deadline = send time + this
 HEADER_SEC = 31  # no response headers by then: busy
 SLACK_SEC = 5  # started, then no result within T + this: the platform lost it
@@ -185,10 +186,6 @@ def verify(problem_dir: Path, sol_dir: Path, runtime: str, client: Client) -> bo
         print(f"error: {sol_dir}/{e}", file=sys.stderr)
     if errors or sol_errors:
         return False
-    timeout_sec = validate.course_timeout(problem_dir.resolve().parent.parent)
-    if timeout_sec is None:
-        print(f"error: {validate.TIMEOUT_ERROR}", file=sys.stderr)
-        return False
 
     problem = (problem_dir / "problem.py").read_text()
     variants = sorted((sol_dir / VARIANTS).glob("*.cu"))
@@ -198,7 +195,7 @@ def verify(problem_dir: Path, sol_dir: Path, runtime: str, client: Client) -> bo
     jobs = [(name, code, expect, run) for name, code, expect in files for run in range(1, RUNS + 1)]
     with ThreadPoolExecutor(WORKERS) as pool:
         results = list(
-            pool.map(lambda j: grade(client, runtime, timeout_sec, slug, j[0], j[3], j[1], problem), jobs)
+            pool.map(lambda j: grade(client, runtime, TIMEOUT_SEC, slug, j[0], j[3], j[1], problem), jobs)
         )
 
     print(f"{slug}: {runtime} graded by sandbox deploy {', '.join(sorted(client.versions)) or 'none'}")

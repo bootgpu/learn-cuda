@@ -38,7 +38,6 @@ STATUSES = ("wip", "draft", "published")
 ALLOWED_MODULES = {"bootgpu.problem"}
 SEED_CALLS = {"manual_seed", "manual_seed_all", "seed", "set_rng_state"}
 ROLES = ("in", "out", "inout")
-TIMEOUT_ERROR = "bootgpu.toml: timeout_sec must be an integer from 1 to 40"
 # The course series these checks are for; bootgpu-api turns community features on or off by it.
 KIND = "learn"
 # Per tensor in every case; a stage that needs more sets max_tensor_elements in problem.yml.
@@ -63,14 +62,6 @@ def title_errors(where: str, title: Any) -> list[str]:
         if not (isinstance(t, str) and 1 <= len(t.strip()) <= 200):
             errors.append(f"{where}: title.{lang} must be a string of 1-200 characters")
     return errors
-
-
-def course_timeout(root: Path) -> int | None:
-    try:
-        t = tomllib.loads((root / "bootgpu.toml").read_text()).get("timeout_sec")
-    except (OSError, tomllib.TOMLDecodeError):
-        return None
-    return t if type(t) is int and 1 <= t <= 40 else None
 
 
 def kind_errors(root: Path) -> list[str]:
@@ -160,8 +151,6 @@ def course_stages(root: Path) -> tuple[list[str], dict[str, dict]]:
 
 def validate_course(root: Path) -> list[str]:
     errors, stages = course_stages(root)
-    if course_timeout(root) is None:
-        errors.append(TIMEOUT_ERROR)
     errors += kind_errors(root)
     for slug, s in stages.items():
         if s["status"] != "wip" and not (root / "problems" / slug).is_dir():

@@ -17,15 +17,12 @@ def test_package(bank):
     (bank / "README.md").write_text("# Map\n")
     errors, pkg = build.build(root, "abc1234")
     assert errors == []
-    assert {
-        k: pkg[k] for k in ("schemaVersion", "slug", "kind", "sourceCommit", "runtime", "timeoutSec", "gpus")
-    } == {
-        "schemaVersion": 2,
+    assert {k: pkg[k] for k in ("schemaVersion", "slug", "kind", "sourceCommit", "runtime", "gpus")} == {
+        "schemaVersion": 3,
         "slug": "learn-demo",
         "kind": "learn",
         "sourceCommit": "abc1234",
         "runtime": "cuda@1",
-        "timeoutSec": 30,
         "gpus": ["t4"],
     }
     assert pkg["parts"][0]["chapters"][0]["stages"] == [
