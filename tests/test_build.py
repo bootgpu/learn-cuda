@@ -34,7 +34,13 @@ def test_package(bank):
     assert list(pkg["stages"]) == ["map"]
     stage = pkg["stages"]["map"]
     assert set(stage) == {
-        "difficulty", "accessTier", "gpus", "statement", "learn", "starterCode", "problemPy"
+        "difficulty",
+        "accessTier",
+        "gpus",
+        "statement",
+        "learn",
+        "starterCode",
+        "problemPy",
     }
     assert stage["gpus"] == ["t4"]
     assert stage["statement"]["en"] == "# Map\n"
