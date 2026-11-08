@@ -14,9 +14,9 @@ def course(bank, status="published"):
 
 def test_package(bank):
     root = course(bank)
-    (bank / "README.md").write_text("# Map\n")
-    (bank / "LEARN.md").write_text("# Threads\n")
-    (bank / "LEARN.zh.md").write_text("# 线程\n")
+    (bank / "problem.md").write_text("# Map\n")
+    (bank / "learn.md").write_text("# Threads\n")
+    (bank / "learn.zh.md").write_text("# 线程\n")
     errors, pkg = build.build(root, "abc1234")
     assert errors == []
     assert {k: pkg[k] for k in ("schemaVersion", "slug", "kind", "sourceCommit", "runtime", "gpus")} == {
@@ -64,10 +64,10 @@ def test_draft_has_no_content(bank):
 def test_refuses_errors(bank):
     root = bank.parent.parent
     (root / "course.yml").write_text((root / "course.yml").read_text().replace("learn-demo", "Learn_Demo"))
-    (bank / "README.zh.md").unlink()
+    (bank / "problem.zh.md").unlink()
     errors, pkg = build.build(root, "abc1234")
     assert pkg is None
     assert "course.yml: slug must be lowercase letters, digits and single '-'" in errors
     assert "course.yml: summary must have en and zh, strings of 1-500 characters" in errors
     assert build.GPUS_ERROR in errors
-    assert "map/README.zh.md: missing" in errors
+    assert "map/problem.zh.md: missing" in errors

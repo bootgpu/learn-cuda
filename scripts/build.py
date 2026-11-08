@@ -54,12 +54,12 @@ def stage_package(problem_dir: Path, gpus: list[str]) -> dict:
         "accessTier": "free",
         "gpus": gpus,
         "statement": {
-            "en": (problem_dir / "README.md").read_text(),
-            "zh": (problem_dir / "README.zh.md").read_text(),
+            "en": (problem_dir / "problem.md").read_text(),
+            "zh": (problem_dir / "problem.zh.md").read_text(),
         },
         "learn": {
-            "en": (problem_dir / "LEARN.md").read_text(),
-            "zh": (problem_dir / "LEARN.zh.md").read_text(),
+            "en": (problem_dir / "learn.md").read_text(),
+            "zh": (problem_dir / "learn.zh.md").read_text(),
         },
         "starterCode": [
             {

@@ -106,8 +106,8 @@ def test_stage(bank):
 
 
 def test_learn(bank):
-    (bank / "LEARN.zh.md").unlink()
-    assert validate.validate(bank) == ["LEARN.zh.md: missing"]
+    (bank / "learn.zh.md").unlink()
+    assert validate.validate(bank) == ["learn.zh.md: missing"]
 
 
 def test_course(bank):

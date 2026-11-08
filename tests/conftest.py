@@ -30,10 +30,10 @@ def bank(tmp_path: Path) -> Path:
     shutil.copyfile(FIXTURES / "map/problem.py", p / "problem.py")
     (p / "starter/cuda/solution.cu").write_text('extern "C" void solve(const float* x, float* y, int N) {}\n')
     (p / "problem.yml").write_text("title:\n  en: Map\n  zh: 映射\ndifficulty: easy\n")
-    (p / "README.md").write_text("")
-    (p / "README.zh.md").write_text("")
-    (p / "LEARN.md").write_text("TODO\n")
-    (p / "LEARN.zh.md").write_text("TODO\n")
+    (p / "problem.md").write_text("")
+    (p / "problem.zh.md").write_text("")
+    (p / "learn.md").write_text("TODO\n")
+    (p / "learn.zh.md").write_text("TODO\n")
     return p
 
 
