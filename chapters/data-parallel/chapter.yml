@@ -1,0 +1,7 @@
+title:
+  en: Heterogeneous Data-Parallel Computing
+  zh: 异构数据并行计算
+stages:
+  - slug: vector-add
+    title: { en: Vector Addition, zh: 向量加法 }
+    status: wip

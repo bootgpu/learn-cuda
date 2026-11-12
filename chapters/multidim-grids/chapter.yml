@@ -1,0 +1,7 @@
+title:
+  en: Multidimensional Grids and Data
+  zh: 多维网格与数据
+stages:
+  - slug: image-blur
+    title: { en: Image Blur, zh: 图像模糊 }
+    status: wip

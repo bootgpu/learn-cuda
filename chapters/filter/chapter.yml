@@ -1,0 +1,7 @@
+title:
+  en: Filter
+  zh: 过滤
+stages:
+  - slug: simple-filter
+    title: { en: Simple Filter, zh: 简单过滤 }
+    status: wip

@@ -1,0 +1,7 @@
+title:
+  en: Scan
+  zh: 扫描（前缀和）
+stages:
+  - slug: inclusive-scan
+    title: { en: Inclusive Scan, zh: 包含扫描 }
+    status: wip

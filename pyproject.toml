@@ -1,5 +1,5 @@
 [project]
-name = "learn-cuda-basics"
+name = "learn-cuda"
 version = "0"
 requires-python = ">=3.12"
 dependencies = []

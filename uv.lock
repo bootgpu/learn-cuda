@@ -55,7 +55,7 @@ wheels = [
 ]
 
 [[package]]
-name = "learn-cuda-basics"
+name = "learn-cuda"
 version = "0"
 source = { virtual = "." }
 

@@ -1,0 +1,7 @@
+title:
+  en: Reduction
+  zh: 归约
+stages:
+  - slug: sum-reduction
+    title: { en: Sum Reduction, zh: 求和归约 }
+    status: wip
