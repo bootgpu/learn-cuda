@@ -15,20 +15,18 @@ def course(bank, status="published"):
 def test_package(bank):
     root = course(bank)
     (bank / "problem.md").write_text("# Map\n")
-    (root / "chapters/basics/reading.md").write_text("## Threads\n")
-    (root / "chapters/basics/reading.zh.md").write_text("## 线程\n")
+    (bank / "learn.md").write_text("# Threads\n")
+    (bank / "learn.zh.md").write_text("# 线程\n")
     errors, pkg = build.build(root, "abc1234")
     assert errors == []
     assert {k: pkg[k] for k in ("schemaVersion", "slug", "kind", "sourceCommit", "runtime", "gpus")} == {
-        "schemaVersion": 5,
+        "schemaVersion": 4,
         "slug": "learn-demo",
         "kind": "learn",
         "sourceCommit": "abc1234",
         "runtime": "cuda@1",
         "gpus": ["t4"],
     }
-    assert pkg["parts"][0]["chapters"][0]["reading"] is True
-    assert pkg["chapters"] == {"basics": {"reading": {"en": "## Threads\n", "zh": "## 线程\n"}}}
     assert pkg["parts"][0]["chapters"][0]["stages"] == [
         {"slug": "map", "title": {"en": "Map", "zh": "映射"}, "status": "published"},
         {"slug": "later", "title": {"en": "Later", "zh": "以后"}, "status": "wip"},
@@ -40,11 +38,13 @@ def test_package(bank):
         "accessTier",
         "gpus",
         "statement",
+        "learn",
         "starterCode",
         "problemPy",
     }
     assert stage["gpus"] == ["t4"]
     assert stage["statement"]["en"] == "# Map\n"
+    assert stage["learn"] == {"en": "# Threads\n", "zh": "# 线程\n"}
     assert stage["starterCode"] == [
         {
             "language": "cuda",
@@ -64,8 +64,6 @@ def test_package_carries_the_harness(bank):
 def test_draft_has_no_content(bank):
     _, pkg = build.build(course(bank, "draft"), "abc1234")
     assert pkg["stages"] == {}
-    assert pkg["chapters"] == {}
-    assert pkg["parts"][0]["chapters"][0]["reading"] is False
     assert pkg["parts"][0]["chapters"][0]["stages"][0]["status"] == "draft"
 
 

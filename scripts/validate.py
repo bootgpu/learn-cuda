@@ -28,6 +28,8 @@ FILES = (
     "problem.yml",
     "problem.md",
     "problem.zh.md",
+    "learn.md",
+    "learn.zh.md",
     "problem.py",
     "starter/cuda/solution.cu",
 )
@@ -36,13 +38,6 @@ HARNESS = "harness.cu"
 HARNESS_FIRST_LINE = '#include "solution.cu"'
 # Passing code; it lives in the private bootgpu/course-solutions.
 PRIVATE = ("solution", "variants")
-# The stage's learn tab shows its chapter's reading; per-stage notes are gone.
-LEGACY = ("learn.md", "learn.zh.md")
-READING = ("reading.md", "reading.zh.md")
-# bootgpu-app serves chapter pages at /courses/<course>/chapters/<chapter>/.
-RESERVED_STAGE = "chapters"
-FENCE = re.compile(r"^ {0,3}(```|~~~)")
-H1 = re.compile(r"^ {0,3}#(\s|$)")
 DIFFICULTIES = ("easy", "medium", "hard")
 STATUSES = ("wip", "draft", "published")
 ALLOWED_MODULES = {"bootgpu.problem"}
@@ -109,8 +104,6 @@ def check_chapter(path: Path) -> tuple[list[str], list[dict]]:
         e = [f"{w}: unknown key {k!r}" for k in s if k not in ("slug", "title", "status")]
         if not (isinstance(s.get("slug"), str) and SLUG.match(s["slug"])):
             e.append(f"{w}: slug must be lowercase letters, digits and single '-'")
-        elif s["slug"] == RESERVED_STAGE:
-            e.append(f"{w}: slug {RESERVED_STAGE!r} is taken by the site's chapter pages")
         e += title_errors(w, s.get("title"))
         if s.get("status") not in STATUSES:
             e.append(f"{w}: status must be one of {', '.join(STATUSES)}")
@@ -161,33 +154,6 @@ def course_stages(root: Path) -> tuple[list[str], dict[str, dict]]:
     return errors, stages
 
 
-def has_h1(text: str) -> bool:
-    fence = None
-    for line in text.splitlines():
-        m = FENCE.match(line)
-        if m:
-            fence = None if fence == m.group(1) else fence or m.group(1)
-        elif fence is None and H1.match(line):
-            return True
-    return False
-
-
-def reading_errors(chapter_dir: Path, required: bool) -> list[str]:
-    where = f"chapters/{chapter_dir.name}"
-    present = [f for f in READING if (chapter_dir / f).is_file()]
-    if not present:
-        return [f"{where}: has a published stage, so it needs {' and '.join(READING)}"] if required else []
-    errors = [
-        f"{where}/{f}: missing; {' and '.join(READING)} come in pairs" for f in READING if f not in present
-    ]
-    errors += [
-        f"{where}/{f}: no '# ' heading; the page title comes from chapter.yml"
-        for f in present
-        if has_h1((chapter_dir / f).read_text())
-    ]
-    return errors
-
-
 def validate_course(root: Path) -> list[str]:
     errors, stages = course_stages(root)
     errors += kind_errors(root)
@@ -196,10 +162,6 @@ def validate_course(root: Path) -> list[str]:
             errors.append(
                 f"chapters/{s['chapter']}: stage {slug} is {s['status']} but problems/{slug} is missing"
             )
-    published = {s["chapter"] for s in stages.values() if s["status"] == "published"}
-    cdir = root / "chapters"
-    for d in sorted(p for p in cdir.iterdir() if p.is_dir()) if cdir.is_dir() else []:
-        errors += reading_errors(d, d.name in published)
     return errors
 
 
@@ -343,11 +305,6 @@ def validate(problem_dir: Path) -> list[str]:
     errors = [] if SLUG.match(slug) else ["slug must be lowercase letters, digits and single '-'"]
     errors += [f"{f}: missing" for f in FILES if not (problem_dir / f).is_file()]
     errors += [f"{d}/: belongs in bootgpu/course-solutions" for d in PRIVATE if (problem_dir / d).exists()]
-    errors += [
-        f"{f}: not used any more; write it into the chapter's reading.md"
-        for f in LEGACY
-        if (problem_dir / f).exists()
-    ]
     harness = problem_dir / HARNESS
     if harness.is_file() and harness.read_text().split("\n", 1)[0].strip() != HARNESS_FIRST_LINE:
         errors.append(f"{HARNESS}: the first line must be {HARNESS_FIRST_LINE}")

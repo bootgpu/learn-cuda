@@ -8,11 +8,9 @@ programming foundations to classic parallel algorithms. Tests stay small
 
 ```text
 course.yml, chapters/              course outline: chapters and their stages, in order
-chapters/<chapter>/
-  reading.md, reading.zh.md        the chapter's study notes (English / Chinese); required
-                                   once a stage is published, no '# ' title; TODO is fine for now
 problems/<slug>/
   problem.md, problem.zh.md        statement (English / Chinese)
+  learn.md, learn.zh.md            study notes (English / Chinese); TODO is fine for now
   problem.py                       reference implementation, signature and test cases
   starter/cuda/solution.cu         starter code
   harness.cu                       optional: a fixed solve() that includes solution.cu; the judge compiles it instead

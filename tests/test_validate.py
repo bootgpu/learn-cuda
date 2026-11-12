@@ -112,39 +112,9 @@ def test_stage(bank):
     assert "not a stage in any chapter.yml listed by course.yml" in validate.validate(other)
 
 
-def test_learn_files_are_gone(bank):
-    (bank / "learn.md").write_text("TODO\n")
-    assert validate.validate(bank) == ["learn.md: not used any more; write it into the chapter's reading.md"]
-
-
-def test_reading(bank):
-    root = bank.parent.parent
-    basics = root / "chapters/basics"
-    assert validate.validate_course(root) == []
-
-    (basics / "reading.zh.md").unlink()
-    (basics / "reading.md").write_text("```\n# a comment\n```\n\n# Basics\n")
-    assert validate.validate_course(root) == [
-        "chapters/basics/reading.zh.md: missing; reading.md and reading.zh.md come in pairs",
-        "chapters/basics/reading.md: no '# ' heading; the page title comes from chapter.yml",
-    ]
-
-    (basics / "reading.md").unlink()
-    assert validate.validate_course(root) == []
-    chapter = basics / "chapter.yml"
-    chapter.write_text(chapter.read_text().replace("status: draft", "status: published"))
-    assert validate.validate_course(root) == [
-        "chapters/basics: has a published stage, so it needs reading.md and reading.zh.md"
-    ]
-
-
-def test_reserved_stage_slug(bank):
-    chapter = bank.parent.parent / "chapters/basics/chapter.yml"
-    chapter.write_text(chapter.read_text().replace("slug: later", "slug: chapters"))
-    errors = validate.validate_course(bank.parent.parent)
-    assert errors == [
-        "chapters/basics/chapter.yml: stages[2]: slug 'chapters' is taken by the site's chapter pages"
-    ]
+def test_learn(bank):
+    (bank / "learn.zh.md").unlink()
+    assert validate.validate(bank) == ["learn.zh.md: missing"]
 
 
 def test_course(bank):
