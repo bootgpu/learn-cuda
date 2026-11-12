@@ -1,3 +1,5 @@
+::bilibili[第 2 章视频：从循环到 kernel]{bvid="BV1nkW962EJS"}
+
 所有线程跑的是同一个 kernel。每个线程靠自己的 block 编号和线程编号，算出该处理哪个元素：
 
 ```cpp
