@@ -2,6 +2,12 @@ title:
   en: Heterogeneous Data-Parallel Computing
   zh: 异构数据并行计算
 stages:
-  - slug: vector-add
-    title: { en: Vector Addition, zh: 向量加法 }
+  - slug: celsius-to-fahrenheit
+    title: { en: Celsius to Fahrenheit, zh: 摄氏转华氏 }
+    status: draft
+  - slug: two-elements-per-thread
+    title: { en: Two Elements per Thread, zh: 一个线程算两个元素 }
+    status: draft
+  - slug: data-parallel-quiz
+    title: { en: Chapter Quiz, zh: 本章测验 }
     status: wip

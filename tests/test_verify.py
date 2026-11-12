@@ -57,6 +57,14 @@ def test_all_as_declared(bank, sol, capsys):
     out = capsys.readouterr().out
     assert "map: cuda@1 graded by sandbox deploy abc1234" in out
     assert "map: 9/9 runs as declared" in out
+    assert {tuple(c["clone"]["files"]) for c in client.calls} == {("problem.py",)}
+
+
+def test_the_harness_goes_with_every_run(bank, sol):
+    (bank / "harness.cu").write_text('#include "solution.cu"\n')
+    client = FakeClient(dict(ANSWERS))
+    assert verify.verify(bank, sol, "cuda@1", client)
+    assert all(c["clone"]["files"]["harness.cu"] == '#include "solution.cu"\n' for c in client.calls)
 
 
 def test_mismatch_fails(bank, sol, capsys):

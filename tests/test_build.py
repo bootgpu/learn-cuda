@@ -55,6 +55,12 @@ def test_package(bank):
     assert stage["problemPy"] == (bank / "problem.py").read_text()
 
 
+def test_package_carries_the_harness(bank):
+    (bank / "harness.cu").write_text('#include "solution.cu"\n')
+    _, pkg = build.build(course(bank), "abc1234")
+    assert pkg["stages"]["map"]["harnessCu"] == '#include "solution.cu"\n'
+
+
 def test_draft_has_no_content(bank):
     _, pkg = build.build(course(bank, "draft"), "abc1234")
     assert pkg["stages"] == {}

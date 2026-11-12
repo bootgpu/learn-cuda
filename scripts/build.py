@@ -49,6 +49,7 @@ def course_gpus(toml: dict) -> list[str]:
 
 def stage_package(problem_dir: Path, gpus: list[str]) -> dict:
     meta, _ = read_yaml(problem_dir / "problem.yml")
+    harness = problem_dir / validate.HARNESS
     return {
         "difficulty": meta["difficulty"],
         "accessTier": "free",
@@ -69,7 +70,7 @@ def stage_package(problem_dir: Path, gpus: list[str]) -> dict:
             }
         ],
         "problemPy": (problem_dir / "problem.py").read_text(),
-    }
+    } | ({"harnessCu": harness.read_text()} if harness.is_file() else {})
 
 
 def build(root: Path, commit: str) -> tuple[list[str], dict | None]:

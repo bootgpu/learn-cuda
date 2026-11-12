@@ -57,6 +57,13 @@ def test_no_performance(bank):
     ]
 
 
+def test_harness_includes_the_solution_first(bank):
+    (bank / "harness.cu").write_text('#include "solution.cu"\n\nextern "C" void solve() {}\n')
+    assert validate.validate(bank) == []
+    (bank / "harness.cu").write_text('#include <cuda_runtime.h>\n#include "solution.cu"\n')
+    assert validate.validate(bank) == ['harness.cu: the first line must be #include "solution.cu"']
+
+
 def test_kind(bank):
     root = bank.parent.parent
     (root / "bootgpu.toml").write_text('kind = "peak"\nruntime = "cuda@1"\n')

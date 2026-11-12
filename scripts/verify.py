@@ -128,7 +128,7 @@ def matches(expect: tuple | None, got: tuple) -> bool:
 
 
 def grade(
-    client: Client, runtime: str, timeout_sec: int, slug: str, name: str, run: int, code: str, problem: str
+    client: Client, runtime: str, timeout_sec: int, slug: str, name: str, run: int, code: str, files: dict
 ) -> tuple[tuple, str]:
     """(outcome, note); retries what the platform got wrong, never what the code did."""
     label = re.sub(r"[^A-Za-z0-9_-]", "-", f"verify-{slug}-{name}-{run}")[:46]
@@ -137,7 +137,7 @@ def grade(
         "runtime": runtime,
         "timeoutSec": timeout_sec,
         "code": code,
-        "clone": {"files": {"problem.py": problem}},
+        "clone": {"files": files},
     }
     note = ""
     for attempt in range(1, ATTEMPTS + 1):
@@ -188,7 +188,9 @@ def verify(problem_dir: Path, sol_dir: Path, runtime: str, client: Client) -> bo
     if errors or sol_errors:
         return False
 
-    problem = (problem_dir / "problem.py").read_text()
+    problem = {"problem.py": (problem_dir / "problem.py").read_text()}
+    if (problem_dir / validate.HARNESS).is_file():
+        problem[validate.HARNESS] = (problem_dir / validate.HARNESS).read_text()
     variants = sorted((sol_dir / VARIANTS).glob("*.cu"))
     files = [(f.stem, f.read_text(), PASSED) for f in variants]
     files.append(("solution", (sol_dir / SOLUTION).read_text(), PASSED))

@@ -14,6 +14,7 @@ problems/<slug>/
   learn.md, learn.zh.md            study notes (English / Chinese); TODO is fine for now
   problem.py                       reference implementation, signature and test cases
   starter/cuda/solution.cu         starter code
+  harness.cu                       optional: a fixed solve() that includes solution.cu; the judge compiles it instead
 bootgpu.toml                       runtime, GPUs and time limit
 scripts/                           validate.py, verify.py, build.py
 archive/                           the earlier learn-cuda-basics outline and problems, not published

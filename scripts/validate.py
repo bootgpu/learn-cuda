@@ -33,6 +33,9 @@ FILES = (
     "problem.py",
     "starter/cuda/solution.cu",
 )
+# Optional: a stage that fixes solve() ships it here; the judge compiles it in place of solution.cu.
+HARNESS = "harness.cu"
+HARNESS_FIRST_LINE = '#include "solution.cu"'
 # Passing code; it lives in the private bootgpu/course-solutions.
 PRIVATE = ("solution", "variants")
 DIFFICULTIES = ("easy", "medium", "hard")
@@ -302,6 +305,9 @@ def validate(problem_dir: Path) -> list[str]:
     errors = [] if SLUG.match(slug) else ["slug must be lowercase letters, digits and single '-'"]
     errors += [f"{f}: missing" for f in FILES if not (problem_dir / f).is_file()]
     errors += [f"{d}/: belongs in bootgpu/course-solutions" for d in PRIVATE if (problem_dir / d).exists()]
+    harness = problem_dir / HARNESS
+    if harness.is_file() and harness.read_text().split("\n", 1)[0].strip() != HARNESS_FIRST_LINE:
+        errors.append(f"{HARNESS}: the first line must be {HARNESS_FIRST_LINE}")
     stage = course_stages(root)[1].get(slug)
     if stage is None:
         errors.append("not a stage in any chapter.yml listed by course.yml")
