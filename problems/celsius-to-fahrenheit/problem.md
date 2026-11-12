@@ -11,6 +11,7 @@ fahrenheit[i] = celsius[i] * 9 / 5 + 32
 - Implement `celsiusToFahrenheitKernel`; the given `solve` already launches it
 - The `solve` function signature must remain unchanged
 - The final result must be stored in `fahrenheit`
+- Do not modify the input or access memory outside the given arrays
 
 ## Example 1:
 
@@ -29,4 +30,5 @@ Output: fahrenheit = [68.0, 77.9, 14.0]
 ## Constraints
 
 - 1 ≤ `n` ≤ 10,000
+- `celsius` and `fahrenheit` each hold `n` contiguous 32-bit floats in GPU memory
 - -100 ≤ `celsius[i]` ≤ 100

@@ -10,6 +10,7 @@ fahrenheit[i] = celsius[i] * 9 / 5 + 32
 - 补全 `celsiusToFahrenheitKernel`；给定的 `solve` 已经会启动它
 - `solve` 函数的签名必须保持不变
 - 最终结果必须存放在 `fahrenheit` 中
+- 不得修改输入，也不得读写给定数组范围以外的内存
 
 ## 示例 1：
 
@@ -28,4 +29,5 @@ fahrenheit[i] = celsius[i] * 9 / 5 + 32
 ## 约束
 
 - 1 ≤ `n` ≤ 10,000
+- `celsius` 和 `fahrenheit` 各含 `n` 个连续的 32 位浮点数，位于 GPU 显存
 - -100 ≤ `celsius[i]` ≤ 100

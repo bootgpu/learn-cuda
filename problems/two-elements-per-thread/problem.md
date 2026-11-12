@@ -9,6 +9,7 @@ to you, as long as every element is covered.
 - Implement `vecAddKernel`, keeping its name and parameters
 - Do not write `solve`; the judge supplies it
 - The final result must be stored in `c`
+- Do not modify the inputs or access memory outside the given arrays
 
 ## Example 1:
 
@@ -29,4 +30,5 @@ Output: c = [1.0, 0.0, -2.0, 10.0]
 ## Constraints
 
 - 1 ≤ `n` ≤ 10,000
+- `a`, `b` and `c` each hold `n` contiguous 32-bit floats in GPU memory
 - -100 ≤ `a[i]`, `b[i]` ≤ 100
