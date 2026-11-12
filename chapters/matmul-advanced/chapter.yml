@@ -1,6 +1,6 @@
 title:
-  en: Advanced Matrix Multiplication
-  zh: 矩阵乘高级优化
+  en: Faster Matrix Multiplication
+  zh: 更快的矩阵乘
 stages:
   - slug: register-tiling
     title: { en: Register Tiling, zh: 寄存器分块 }

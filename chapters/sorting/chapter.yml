@@ -1,6 +1,6 @@
 title:
-  en: Sorting
-  zh: 排序
+  en: Sorting on the GPU
+  zh: GPU 上的排序
 stages:
   - slug: radix-sort
     title: { en: Radix Sort, zh: 基数排序 }

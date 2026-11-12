@@ -1,16 +1,16 @@
 # 课程目录：篇 → 章的顺序。章内关卡与状态在 chapters/<slug>/chapter.yml。
-# 篇与章对应 PMPP 第 5 版第 1、2 篇（第 2–15 章）；旧的 learn-cuda-basics 目录在 archive/。
+# 旧的 learn-cuda-basics 目录在 archive/。
 slug: learn-cuda
 title:
   en: CUDA Parallel Programming
   zh: CUDA 并行编程
 summary:
-  en: "Write CUDA kernels chapter by chapter alongside PMPP: from your first kernel to convolution, reduction, scan, sorting and optimized matrix multiplication."
-  zh: 跟着 PMPP 一章一章写 CUDA kernel：从第一个 kernel 写到卷积、归约、扫描、排序和矩阵乘优化。
+  en: "Write CUDA kernels chapter by chapter: from turning a loop into your first kernel to convolution, reduction, prefix sums, sorting and faster matrix multiplication."
+  zh: 一章一章写 CUDA kernel：从把循环改成第一个 kernel，写到卷积、归约、前缀和、排序和更快的矩阵乘。
 parts:
   - title:
-      en: Fundamental Concepts
-      zh: 基础概念
+      en: GPU Programming Foundations
+      zh: GPU 编程基础
     chapters:
       - data-parallel
       - multidim-grids
@@ -18,8 +18,8 @@ parts:
       - memory-locality
       - performance
   - title:
-      en: Parallel Patterns
-      zh: 并行模式
+      en: Classic Parallel Algorithms
+      zh: 经典并行算法
     chapters:
       - convolution
       - stencil

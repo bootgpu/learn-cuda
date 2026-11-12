@@ -1,6 +1,6 @@
 title:
-  en: Heterogeneous Data-Parallel Computing
-  zh: 异构数据并行计算
+  en: From Loops to Kernels
+  zh: 从循环到 kernel
 stages:
   - slug: celsius-to-fahrenheit
     title: { en: Celsius to Fahrenheit, zh: 摄氏转华氏 }

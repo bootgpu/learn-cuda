@@ -1,6 +1,6 @@
 title:
-  en: Multidimensional Grids and Data
-  zh: 多维网格与数据
+  en: Threads over 2D and 3D Data
+  zh: 用线程铺满二维、三维数据
 stages:
   - slug: image-blur
     title: { en: Image Blur, zh: 图像模糊 }

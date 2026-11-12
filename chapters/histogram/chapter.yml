@@ -1,6 +1,6 @@
 title:
-  en: Histogram
-  zh: 直方图
+  en: Histograms and Atomics
+  zh: 直方图与原子操作
 stages:
   - slug: histogram
     title: { en: Histogram, zh: 直方图 }

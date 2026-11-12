@@ -1,6 +1,6 @@
 title:
-  en: Convolution
-  zh: 卷积
+  en: Convolution Filters
+  zh: 卷积滤波
 stages:
   - slug: conv-2d
     title: { en: 2D Convolution, zh: 二维卷积 }

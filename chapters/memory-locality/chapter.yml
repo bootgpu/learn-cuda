@@ -1,6 +1,6 @@
 title:
-  en: Memory Architecture and Data Locality
-  zh: 内存架构与数据局部性
+  en: Shared Memory and Tiling
+  zh: 共享内存与分块
 stages:
   - slug: tiled-matmul
     title: { en: Tiled Matrix Multiplication, zh: 分块矩阵乘 }

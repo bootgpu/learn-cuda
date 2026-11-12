@@ -1,6 +1,6 @@
 title:
-  en: Compute Architecture and Scheduling
-  zh: 计算架构与调度
+  en: How a GPU Runs Your Threads
+  zh: GPU 如何执行线程
 stages:
   - slug: control-divergence
     title: { en: Control Divergence, zh: 控制分歧 }

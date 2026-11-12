@@ -1,5 +1,3 @@
-This stage goes with Chapter 2 of PMPP, *Heterogeneous data parallel computing*.
-
 Every thread runs the same kernel. A thread finds its own element from its block number
 and its thread number:
 

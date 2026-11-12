@@ -1,6 +1,6 @@
 title:
-  en: Performance Considerations
-  zh: 性能考量
+  en: Tuning Kernel Performance
+  zh: kernel 性能调优
 stages:
   - slug: coalescing
     title: { en: Memory Coalescing, zh: 合并访存 }

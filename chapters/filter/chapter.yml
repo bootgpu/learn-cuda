@@ -1,6 +1,6 @@
 title:
-  en: Filter
-  zh: 过滤
+  en: Filtering and Stream Compaction
+  zh: 过滤与流压缩
 stages:
   - slug: simple-filter
     title: { en: Simple Filter, zh: 简单过滤 }

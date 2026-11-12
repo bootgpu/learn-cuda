@@ -1,4 +1,4 @@
-This stage practices the index formula from Chapter 2 of PMPP under a new launch.
+This stage practices the index formula from the previous stage under a new launch.
 
 With one element per thread, the formula reads "positions taken by the blocks before
 this one, plus my place in my block":
@@ -14,4 +14,4 @@ check against `n`: with an odd `n`, the last thread has only one element to comp
 
 Taking two neighbouring elements is not the only way. A thread could also take one
 element in the first half of the array and one in the second half. Both pass here;
-Chapter 6 (memory coalescing) shows why the choice matters for speed.
+the _Tuning Kernel Performance_ chapter (memory coalescing) shows why the choice matters for speed.

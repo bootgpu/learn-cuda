@@ -1,6 +1,6 @@
 title:
-  en: Merge
-  zh: 归并
+  en: Merging Sorted Arrays
+  zh: 合并有序数组
 stages:
   - slug: parallel-merge
     title: { en: Parallel Merge, zh: 并行归并 }

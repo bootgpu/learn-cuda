@@ -1,6 +1,6 @@
 title:
-  en: Reduction
-  zh: 归约
+  en: Reducing an Array to One Value
+  zh: 把数组归约成一个值
 stages:
   - slug: sum-reduction
     title: { en: Sum Reduction, zh: 求和归约 }

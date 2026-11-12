@@ -1,7 +1,7 @@
 # learn-cuda
 
-Problems for bootgpu's CUDA Parallel Programming course: write CUDA C++ kernels chapter by chapter alongside
-Parts I and II of PMPP (Programming Massively Parallel Processors). Tests stay small
+Problems for bootgpu's CUDA Parallel Programming course: write CUDA C++ kernels chapter by chapter, from GPU
+programming foundations to classic parallel algorithms. Tests stay small
 (up to about 10,000 elements), so any correct solution passes; speed is for a later course. The format is inspired
 by [LeetGPU](https://github.com/AlphaGPU/leetgpu-challenges)'s challenges.
 

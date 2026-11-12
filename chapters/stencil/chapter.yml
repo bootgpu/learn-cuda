@@ -1,6 +1,6 @@
 title:
-  en: Stencil Computation
-  zh: 模板计算
+  en: Stencils on Grids
+  zh: 网格上的模板计算
 stages:
   - slug: stencil-3d
     title: { en: 3D Stencil, zh: 三维模板 }
