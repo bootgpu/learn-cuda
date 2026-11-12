@@ -1,7 +1,7 @@
 """Grade each problem's variants, official solution and starter on the live GPU entry.
 
 Usage: BG_JUDGE_URL=... BG_MODAL_KEY=... BG_MODAL_SECRET=... uv run scripts/verify.py [--solutions DIR]
-       [problems/<slug> ...]   (default: all problems)
+       [problems/<slug> ...]   (default: all problems except quiz stages)
 
 The official solutions and variants live in the private bootgpu/course-solutions, under <course slug>/
 problems/<slug>/; DIR is that course's directory (default: ../course-solutions/<course slug> beside this
@@ -232,7 +232,10 @@ def main(argv: list[str]) -> int:
     if not sols.is_dir():
         raise SystemExit(f"no solutions at {sols}; clone bootgpu/course-solutions there or pass --solutions")
     runtime = tomllib.loads((root / "bootgpu.toml").read_text())["runtime"]
-    dirs = args.problems or sorted(p for p in (root / "problems").iterdir() if p.is_dir())
+    # A quiz stage has nothing to grade on a GPU; validate.py checks it.
+    dirs = args.problems or sorted(
+        p for p in (root / "problems").iterdir() if p.is_dir() and not (p / validate.QUIZ).is_file()
+    )
     client = client_from_env()
     failed = [d.name for d in dirs if not verify(d, sols / "problems" / d.resolve().name, runtime, client)]
     if failed:

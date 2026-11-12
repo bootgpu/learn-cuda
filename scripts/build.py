@@ -16,9 +16,9 @@ from pathlib import Path
 from typing import Any
 
 import validate
-from validate import ROOT, SLUG, course_stages, read_yaml, title_errors
+from validate import ROOT, SLUG, as_text, course_stages, feedback_index, read_yaml, title_errors
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 GPUS_ERROR = "bootgpu.toml: gpus must be a non-empty list of distinct GPU names"
 
 
@@ -48,9 +48,12 @@ def course_gpus(toml: dict) -> list[str]:
 
 
 def stage_package(problem_dir: Path, gpus: list[str]) -> dict:
+    if (problem_dir / validate.QUIZ).is_file():
+        return quiz_package(problem_dir)
     meta, _ = read_yaml(problem_dir / "problem.yml")
     harness = problem_dir / validate.HARNESS
     return {
+        "type": "code",
         "difficulty": meta["difficulty"],
         "accessTier": "free",
         "gpus": gpus,
@@ -71,6 +74,58 @@ def stage_package(problem_dir: Path, gpus: list[str]) -> dict:
         ],
         "problemPy": (problem_dir / "problem.py").read_text(),
     } | ({"harnessCu": harness.read_text()} if harness.is_file() else {})
+
+
+def text_package(q: dict) -> dict:
+    return (
+        {"prompt": q["prompt"]}
+        | ({"options": [as_text(o) for o in q["options"]]} if "options" in q else {})
+        | {"explanation": q["explanation"]}
+        | (
+            {"feedback": {str(feedback_index(k)): v for k, v in q["feedback"].items()}}
+            if "feedback" in q
+            else {}
+        )
+    )
+
+
+def answer_package(q: dict) -> dict:
+    """The answer with the optional fields filled in, as bootgpu-api grades it."""
+    if q["type"] == "single":
+        return {"answer": q["answer"]}
+    if q["type"] == "multiple":
+        return {"answers": sorted(q["answers"])}
+    a = q["accept"]
+    if "exact" in a:
+        return {
+            "accept": {
+                "exact": [as_text(x) for x in a["exact"]],
+                "caseSensitive": a.get("caseSensitive", False),
+            }
+        }
+    if "numeric" in a:
+        return {"accept": {"numeric": a["numeric"], "tolerance": a.get("tolerance", 0)}}
+    return {"accept": {"sequence": a["sequence"]}}
+
+
+def quiz_package(problem_dir: Path) -> dict:
+    """bootgpu-api docs/02-quiz.md §3; validate.check_quiz has passed."""
+    en, _ = read_yaml(problem_dir / validate.QUIZ)
+    zh, _ = read_yaml(problem_dir / validate.QUIZ_ZH)
+    return {
+        "type": "quiz",
+        "accessTier": "free",
+        "learn": {
+            "en": (problem_dir / "learn.md").read_text(),
+            "zh": (problem_dir / "learn.zh.md").read_text(),
+        },
+        "questions": [
+            {"id": q["id"], "type": q["type"]}
+            | answer_package(q)
+            | {"text": {"en": text_package(q), "zh": text_package(t)}}
+            for q, t in zip(en["questions"], zh["questions"], strict=True)
+        ],
+    }
 
 
 def build(root: Path, commit: str) -> tuple[list[str], dict | None]:
