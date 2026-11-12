@@ -25,6 +25,8 @@ def bank(tmp_path: Path) -> Path:
     )
     (tmp_path / "chapters/basics").mkdir(parents=True)
     (tmp_path / "chapters/basics/chapter.yml").write_text(CHAPTER)
+    (tmp_path / "chapters/basics/reading.md").write_text("TODO\n")
+    (tmp_path / "chapters/basics/reading.zh.md").write_text("TODO\n")
     p = tmp_path / "problems/map"
     (p / "starter/cuda").mkdir(parents=True)
     shutil.copyfile(FIXTURES / "map/problem.py", p / "problem.py")
@@ -32,8 +34,6 @@ def bank(tmp_path: Path) -> Path:
     (p / "problem.yml").write_text("title:\n  en: Map\n  zh: 映射\ndifficulty: easy\n")
     (p / "problem.md").write_text("")
     (p / "problem.zh.md").write_text("")
-    (p / "learn.md").write_text("TODO\n")
-    (p / "learn.zh.md").write_text("TODO\n")
     return p
 
 
