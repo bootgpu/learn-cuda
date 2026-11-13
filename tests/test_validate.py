@@ -101,8 +101,8 @@ def test_bad_slug(bank):
 
 
 def test_stage(bank):
-    (bank / "problem.yml").write_text("title:\n  en: Map\n  zh: 映射函数\ndifficulty: easy\n")
-    assert validate.validate(bank) == ["problem.yml: title differs from the stage's title in chapter.yml"]
+    (bank / "problem.yml").write_text("title:\n  en: Map\n  zh: 映射\ndifficulty: easy\n")
+    assert validate.validate(bank) == ["problem.yml: unknown key 'title'"]
 
     later = bank.parent / "later"
     shutil.copytree(bank, later)

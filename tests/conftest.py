@@ -29,7 +29,7 @@ def bank(tmp_path: Path) -> Path:
     (p / "starter/cuda").mkdir(parents=True)
     shutil.copyfile(FIXTURES / "map/problem.py", p / "problem.py")
     (p / "starter/cuda/solution.cu").write_text('extern "C" void solve(const float* x, float* y, int N) {}\n')
-    (p / "problem.yml").write_text("title:\n  en: Map\n  zh: 映射\ndifficulty: easy\n")
+    (p / "problem.yml").write_text("difficulty: easy\n")
     (p / "problem.md").write_text("")
     (p / "problem.zh.md").write_text("")
     (p / "learn.md").write_text("TODO\n")

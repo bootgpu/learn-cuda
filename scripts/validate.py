@@ -194,17 +194,14 @@ def validate_course(root: Path) -> list[str]:
     return errors
 
 
-def check_yml(path: Path, stage_title: Any) -> list[str]:
+def check_yml(path: Path) -> list[str]:
     meta, err = read_yaml(path)
     if err:
         return [f"problem.yml: {err}"]
     if not isinstance(meta, dict):
-        return ["problem.yml: must be a mapping with title and difficulty"]
-    keys = ("title", "difficulty", "max_tensor_elements")
+        return ["problem.yml: must be a mapping with difficulty"]
+    keys = ("difficulty", "max_tensor_elements")
     errors = [f"problem.yml: unknown key {k!r}" for k in meta if k not in keys]
-    errors += title_errors("problem.yml", meta.get("title"))
-    if stage_title is not None and meta.get("title") != stage_title:
-        errors.append("problem.yml: title differs from the stage's title in chapter.yml")
     if meta.get("difficulty") not in DIFFICULTIES:
         errors.append(f"problem.yml: difficulty must be one of {', '.join(DIFFICULTIES)}")
     if "max_tensor_elements" in meta and tensor_limit(meta) is None:
@@ -585,7 +582,7 @@ def validate(problem_dir: Path, warnings: list[str] | None = None) -> list[str]:
         return errors
     limit = MAX_TENSOR_ELEMENTS
     if (problem_dir / "problem.yml").is_file():
-        errors += check_yml(problem_dir / "problem.yml", stage and stage["title"])
+        errors += check_yml(problem_dir / "problem.yml")
         limit = tensor_limit(read_yaml(problem_dir / "problem.yml")[0]) or MAX_TENSOR_ELEMENTS
     path = problem_dir / "problem.py"
     if path.is_file():
