@@ -27,14 +27,14 @@ def bank(tmp_path: Path) -> Path:
     )
     (tmp_path / "chapters/basics").mkdir(parents=True)
     (tmp_path / "chapters/basics/chapter.yml").write_text(CHAPTER)
+    (tmp_path / "chapters/basics/reading.md").write_text("TODO\n")
+    (tmp_path / "chapters/basics/reading.zh.md").write_text("TODO\n")
     p = tmp_path / "problems/map"
     (p / "starter/cuda").mkdir(parents=True)
     shutil.copyfile(FIXTURES / "map/problem.py", p / "problem.py")
     (p / "starter/cuda/solution.cu").write_text('extern "C" void solve(const float* x, float* y, int N) {}\n')
     (p / "problem.md").write_text("")
     (p / "problem.zh.md").write_text("")
-    (p / "learn.md").write_text("TODO\n")
-    (p / "learn.zh.md").write_text("TODO\n")
     return p
 
 
@@ -113,6 +113,4 @@ def quiz(bank: Path) -> Path:
     q.mkdir()
     (q / "quiz.yml").write_text(QUIZ)
     (q / "quiz.zh.yml").write_text(QUIZ_ZH)
-    (q / "learn.md").write_text("TODO\n")
-    (q / "learn.zh.md").write_text("TODO\n")
     return q

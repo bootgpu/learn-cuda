@@ -18,7 +18,7 @@ from typing import Any
 import validate
 from validate import ROOT, SLUG, as_text, course_stages, feedback_index, read_yaml, title_errors
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 GPUS_ERROR = "bootgpu.toml: gpus must be a non-empty list of distinct GPU names"
 
 
@@ -59,10 +59,6 @@ def stage_package(problem_dir: Path, gpus: list[str], stage: dict) -> dict:
         "statement": {
             "en": (problem_dir / "problem.md").read_text(),
             "zh": (problem_dir / "problem.zh.md").read_text(),
-        },
-        "learn": {
-            "en": (problem_dir / "learn.md").read_text(),
-            "zh": (problem_dir / "learn.zh.md").read_text(),
         },
         "starterCode": [
             {
@@ -114,10 +110,6 @@ def quiz_package(problem_dir: Path) -> dict:
     return {
         "type": "quiz",
         "accessTier": "free",
-        "learn": {
-            "en": (problem_dir / "learn.md").read_text(),
-            "zh": (problem_dir / "learn.zh.md").read_text(),
-        },
         "questions": [
             {"id": q["id"], "type": q["type"]}
             | answer_package(q)
@@ -145,6 +137,8 @@ def build(root: Path, commit: str) -> tuple[list[str], dict | None]:
     if errors:
         return errors, None
     _, stages = course_stages(root)
+    # validate_course made every chapter with a published stage carry its reading.
+    readings = {s["chapter"] for s in stages.values() if s["status"] == "published"}
     parts = []
     for part in course["parts"]:
         chapters = []
@@ -154,6 +148,7 @@ def build(root: Path, commit: str) -> tuple[list[str], dict | None]:
                 {
                     "slug": c,
                     "title": data["title"],
+                    "reading": c in readings,
                     "stages": [
                         {"slug": s["slug"], "title": s["title"], "status": s["status"]}
                         | ({"summary": s["summary"]} if "summary" in s else {})
@@ -172,6 +167,15 @@ def build(root: Path, commit: str) -> tuple[list[str], dict | None]:
         "runtime": toml["runtime"],
         "gpus": gpus,
         "parts": parts,
+        "chapters": {
+            c: {
+                "reading": {
+                    lang: (root / "chapters" / c / f).read_text()
+                    for lang, f in zip(("en", "zh"), validate.READING, strict=True)
+                }
+            }
+            for c in sorted(readings)
+        },
         "stages": {
             slug: stage_package(pdir / slug, gpus, s)
             for slug, s in stages.items()

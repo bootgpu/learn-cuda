@@ -15,18 +15,20 @@ def course(bank, status="published"):
 def test_package(bank):
     root = course(bank)
     (bank / "problem.md").write_text("# Map\n")
-    (bank / "learn.md").write_text("# Threads\n")
-    (bank / "learn.zh.md").write_text("# 线程\n")
+    (root / "chapters/basics/reading.md").write_text("## Threads\n")
+    (root / "chapters/basics/reading.zh.md").write_text("## 线程\n")
     errors, pkg = build.build(root, "abc1234")
     assert errors == []
     assert {k: pkg[k] for k in ("schemaVersion", "slug", "kind", "sourceCommit", "runtime", "gpus")} == {
-        "schemaVersion": 5,
+        "schemaVersion": 6,
         "slug": "learn-demo",
         "kind": "learn",
         "sourceCommit": "abc1234",
         "runtime": "cuda@1",
         "gpus": ["t4"],
     }
+    assert pkg["parts"][0]["chapters"][0]["reading"] is True
+    assert pkg["chapters"] == {"basics": {"reading": {"en": "## Threads\n", "zh": "## 线程\n"}}}
     assert pkg["parts"][0]["chapters"][0]["stages"] == [
         {
             "slug": "map",
@@ -44,7 +46,6 @@ def test_package(bank):
         "accessTier",
         "gpus",
         "statement",
-        "learn",
         "starterCode",
         "problemPy",
     }
@@ -52,7 +53,6 @@ def test_package(bank):
     assert stage["difficulty"] == "easy"
     assert stage["gpus"] == ["t4"]
     assert stage["statement"]["en"] == "# Map\n"
-    assert stage["learn"] == {"en": "# Threads\n", "zh": "# 线程\n"}
     assert stage["starterCode"] == [
         {
             "language": "cuda",
@@ -71,15 +71,11 @@ def test_package_carries_the_harness(bank):
 
 def test_quiz_package(quiz):
     root = course(quiz)
-    (quiz / "learn.zh.md").write_text("# 线程\n")
     errors, pkg = build.build(root, "abc1234")
     assert errors == []
     stage = pkg["stages"]["check"]
-    assert {k: stage[k] for k in ("type", "accessTier", "learn")} == {
-        "type": "quiz",
-        "accessTier": "free",
-        "learn": {"en": "TODO\n", "zh": "# 线程\n"},
-    }
+    assert set(stage) == {"type", "accessTier", "questions"}
+    assert {k: stage[k] for k in ("type", "accessTier")} == {"type": "quiz", "accessTier": "free"}
     threads, index, size, qualifier = stage["questions"]
     assert threads == {
         "id": "threads",
@@ -110,6 +106,8 @@ def test_quiz_package(quiz):
 def test_draft_has_no_content(bank):
     _, pkg = build.build(course(bank, "draft"), "abc1234")
     assert pkg["stages"] == {}
+    assert pkg["chapters"] == {}
+    assert pkg["parts"][0]["chapters"][0]["reading"] is False
     assert pkg["parts"][0]["chapters"][0]["stages"][0]["status"] == "draft"
 
 
