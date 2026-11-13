@@ -59,7 +59,7 @@ questions:
       - 'Yes: blocks run one by one in index order'
       - 'No: different blocks cannot use the same array'
       - 'No: there is no guarantee on the order blocks run in'
-      - 'Yes, as long as the GPU can run all the blocks at once'
+      - 'Yes: as long as the GPU can run all the blocks at once'
     answer: 2
     feedback:
       0: CUDA does not run blocks in index order; they may run in any order, or at the same time.
@@ -148,7 +148,7 @@ questions:
       - '`__global__`'
       - Nothing
     answers: [0, 1]
-    explanation: A `__device__` function runs on the GPU and a kernel can call it; `__host__ __device__` builds two versions, callable from both CPU and GPU. `__global__` marks a kernel, which the host launches with `<<<...>>>` to start a new grid; it is not an ordinary function call. With nothing in front, it is a host function, callable only on the CPU.
+    explanation: A `__device__` function runs on the GPU and a kernel can call it; `__host__ __device__` builds two versions, callable from both CPU and GPU. `__global__` marks a kernel, which the host launches with `<<<...>>>` to start a new grid; it is not an ordinary function call, and a kernel must return `void` while `toF` returns `float`. With nothing in front, it is a host function, callable only on the CPU.
 
   - id: malloc-address
     type: single

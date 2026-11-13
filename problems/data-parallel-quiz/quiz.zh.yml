@@ -130,7 +130,7 @@ questions:
       - '`__host__ __device__`'
       - '`__global__`'
       - 什么都不写
-    explanation: '`__device__` 函数在 GPU 上执行，能被 kernel 调用；`__host__ __device__` 编出两个版本，CPU 和 GPU 都能调。`__global__` 标的是 kernel，从 host 用 `<<<...>>>` 启动，会开出新的 grid，不是一次普通的函数调用。什么都不写就是 host 函数，只能在 CPU 上调用。'
+    explanation: '`__device__` 函数在 GPU 上执行，能被 kernel 调用；`__host__ __device__` 编出两个版本，CPU 和 GPU 都能调。`__global__` 标的是 kernel，从 host 用 `<<<...>>>` 启动，会开出新的 grid，不是一次普通的函数调用，而且 kernel 的返回类型必须是 `void`，`toF` 返回的是 `float`。什么都不写就是 host 函数，只能在 CPU 上调用。'
 
   - id: malloc-address
     prompt: 有人写成 `cudaMalloc(d_a, bytes)`，编译通不过，要写成 `cudaMalloc(&d_a, bytes)`。为什么第一个参数要传 `d_a` 的地址？
