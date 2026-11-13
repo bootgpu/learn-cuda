@@ -87,6 +87,8 @@ Work through a small example: 4 threads per block, and look at thread 2 of block
 | 1     | 0 1 2 3      | 4 5 6 7   |
 | 2     | 0 1 2 3      | 8 9 10 11 |
 
+::motion{path="learn-cuda/global-index"}
+
 In general:
 
 ```cpp

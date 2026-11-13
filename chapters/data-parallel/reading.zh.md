@@ -89,6 +89,8 @@ CUDA 的线程不是一个一个零散地开，而是分组：
 | 1     | 0 1 2 3  | 4 5 6 7    |
 | 2     | 0 1 2 3  | 8 9 10 11  |
 
+::motion{path="learn-cuda/global-index"}
+
 写成一般的式子：
 
 ```cpp
