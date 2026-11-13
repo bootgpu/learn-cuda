@@ -38,6 +38,8 @@ This is the sequential version: with a million elements the loop iterates a mill
 
 A CUDA program has two sides: the CPU side is called the **host**, and the GPU side is called the **device**. Code for both can live in the same source file (with the `.cu` extension). Most of the code is still ordinary C++ running on the host; only the part handed to the GPU is marked with CUDA-specific keywords. So an ordinary C++ program can be seen as a CUDA program with host code only. CUDA adds just a few pieces of new syntax and a set of library functions on top of C++.
 
+::motion{path="learn-cuda/host-device"}
+
 ### Kernels
 
 The part handed to the GPU is a function called a **kernel**. A kernel is executed on the GPU by a large number of threads together. Turning the sequential function above into a kernel takes two changes:
@@ -50,7 +52,7 @@ __global__ void vecAddKernel(const float* a, const float* b, float* c, int n) {
 ```
 
 1. The keyword `__global__` (two underscores on each side) goes in front of the function. It means: this is a kernel, called from the host and executed on the device. A kernel must return `void`.
-2. The `for` loop is gone. The body keeps only the line that computes one element.
+2. Remove the `for` loop and keep its body `c[i] = a[i] + b[i];` unchanged. The `i` that the loop variable used to supply is now computed by each thread from its own index (see the next section).
 
 The `n` iterations have not disappeared. When the kernel is launched, CUDA starts a large number of threads at once, and each thread runs the function body once, taking the place of one iteration of the old loop. Handing each iteration of a loop to its own thread is called **loop parallelism**. All threads run the same code but work on different data. This style is called **SPMD** (Single Program, Multiple Data). Each thread on its own still executes its statements in order, top to bottom.
 
@@ -78,6 +80,8 @@ Every thread can read a few variables that CUDA sets up in advance:
 | `blockDim.x`  | The number of threads in each block                                             |
 
 These variables are read-only. The `.x` suffix is there because threads can also be arranged in 2D or 3D (next chapter). The data in this chapter is one-dimensional, so `x` is all we need.
+
+::motion{path="learn-cuda/grid-blocks"}
 
 ### The global index
 

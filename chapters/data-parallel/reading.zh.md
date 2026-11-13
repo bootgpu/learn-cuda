@@ -40,6 +40,8 @@ void vecAdd(const float* a, const float* b, float* c, int n) {
 
 CUDA 程序分为两部分：CPU 一侧称为 **host**，GPU 一侧称为 **device**。两部分代码可以写在同一个源文件中（扩展名为 `.cu`）。大部分代码仍是普通的 C++，在 host 上运行；只有交给 GPU 执行的部分需要用 CUDA 专用的关键字标明。因此，普通的 C++ 程序可以看作只含 host 代码的 CUDA 程序。CUDA 只在 C++ 的基础上增加了少量新语法和库函数。
 
+::motion{path="learn-cuda/host-device"}
+
 ### kernel
 
 交给 GPU 执行的部分是一个函数，称为 **kernel**。kernel 在 GPU 上由大量线程共同执行。将上面的串行函数改写为 kernel，需要两处改动：
@@ -52,7 +54,7 @@ __global__ void vecAddKernel(const float* a, const float* b, float* c, int n) {
 ```
 
 1. 函数前加关键字 `__global__`（前后各两个下划线），表示这是一个 kernel：由 host 调用，在 device 上执行。kernel 的返回类型必须是 `void`。
-2. 去掉 `for` 循环，函数体只保留计算一个元素的那一行。
+2. 去掉 `for` 循环，循环体 `c[i] = a[i] + b[i];` 原样保留。原来由循环变量提供的 `i`，改由每个线程根据自己的编号算出（见下一节）。
 
 原来的 `n` 次迭代并没有消失。启动 kernel 时，CUDA 一次创建大量线程，每个线程执行一遍函数体，恰好对应原来的一次迭代。这种把循环的每次迭代分配给一个线程的做法，称为**循环并行**（loop parallelism）。所有线程执行同一份代码，但各自处理不同的数据，这种方式称为 **SPMD**（Single Program, Multiple Data，单程序多数据）。就单个线程而言，代码仍是自上而下逐条顺序执行的。
 
@@ -80,6 +82,8 @@ CUDA 的线程不是逐个零散创建的，而是分组组织：
 | `blockDim.x`  | 每个 block 的线程数                                          |
 
 这些变量是只读的。之所以带后缀 `.x`，是因为线程还可以按二维、三维排列（下一章介绍）；本章的数据是一维的，只用到 `x`。
+
+::motion{path="learn-cuda/grid-blocks"}
 
 ### 全局编号
 
