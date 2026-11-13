@@ -105,6 +105,8 @@ int i = blockIdx.x * blockDim.x + threadIdx.x;
 
 `n` 不一定正好是每个 block 线程数的整数倍。比如 `n = 10`、每个 block 4 个线程：要让 10 个元素都有线程算，得开 3 个 block，一共 12 个线程。最后两个线程算出的 `i` 是 10 和 11，可数组里根本没有这两个位置。让它们照样去写，就会写到数组外面，改坏别的数据，甚至让程序崩溃。
 
+::motion{path="learn-cuda/out-of-bounds"}
+
 所以 kernel 里要加一句 `if`：`i` 小于 `n` 才干活，多出来的线程什么也不做，直接结束。完整的 kernel：
 
 ```cpp

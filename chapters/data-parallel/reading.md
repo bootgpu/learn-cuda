@@ -103,6 +103,8 @@ int i = blockIdx.x * blockDim.x + threadIdx.x;
 
 `n` is not always an exact multiple of the threads per block. Take `n = 10` with 4 threads per block: to give all 10 elements a thread, you need 3 blocks, 12 threads in total. The last two threads get `i` equal to 10 and 11, but the array has no such positions. If they write anyway, they write past the end of the array, corrupting other data or even crashing the program.
 
+::motion{path="learn-cuda/out-of-bounds"}
+
 So the kernel needs an `if`: work only when `i` is less than `n`. Extra threads do nothing and simply finish. The complete kernel:
 
 ```cpp
