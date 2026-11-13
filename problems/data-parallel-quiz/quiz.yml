@@ -85,7 +85,7 @@ questions:
   - id: memcpy-order
     type: single
     prompt: |-
-      The intent is to copy `n` `int`s from `h_x` in host memory to `d_x` in device memory, but the code says:
+      The intent is to copy `n` values of type `int` from `h_x` in host memory to `d_x` in device memory, but the code says:
 
       ```cpp
       cudaMemcpy(h_x, d_x, n * sizeof(int), cudaMemcpyHostToDevice);
