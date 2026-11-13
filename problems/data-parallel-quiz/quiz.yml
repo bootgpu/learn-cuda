@@ -45,7 +45,10 @@ questions:
       saxpy<<<blocks, threads>>>(2.0f, d_x, d_y, n);
       ```
 
-      How many threads execute line ①, and how many execute line ②? Enter the two numbers in order.
+      Enter two numbers in order, separated by a comma:
+
+      1. How many threads execute line ①?
+      2. How many threads execute line ②?
     accept: { sequence: [3072, 3000] }
     explanation: '`(3000 + 255) / 256` is 12 in integer division, so 12 × 256 = 3072 threads are launched, and every one of them runs ①. Only the 3000 threads with `i` from 0 to 2999 pass `if (i < n)` and run ②; the 72 threads with `i` from 3000 to 3071 stop at the `if`.'
 
