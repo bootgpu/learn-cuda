@@ -79,19 +79,24 @@ def test_tensor_limit(bank):
     p.write_text(p.read_text().replace("self._rand(10_000)", "self._rand(10_001)"))
     assert validate.validate(bank) == [
         "problem.py: test_6: x has 10,001 elements, above 10,000; learn tests stay small"
-        " (max_tensor_elements in problem.yml raises it for one stage)",
+        " (max_tensor_elements on the stage in chapter.yml raises it)",
         "problem.py: test_6: y has 10,001 elements, above 10,000; learn tests stay small"
-        " (max_tensor_elements in problem.yml raises it for one stage)",
+        " (max_tensor_elements on the stage in chapter.yml raises it)",
     ]
 
-    yml = bank / "problem.yml"
-    yml.write_text(yml.read_text() + "max_tensor_elements: 20000\n")
+    root = bank.parent.parent
+    chapter = root / "chapters/basics/chapter.yml"
+    chapter.write_text(
+        chapter.read_text().replace(
+            "difficulty: easy\n", "difficulty: easy\n    max_tensor_elements: 20000\n"
+        )
+    )
     assert validate.validate(bank) == []
 
-    yml.write_text(yml.read_text().replace("20000", "10000"))
-    errors = validate.validate(bank)
-    assert errors[0] == "problem.yml: max_tensor_elements must be an integer above 10000"
-    assert len(errors) == 3, errors
+    chapter.write_text(chapter.read_text().replace("20000", "10000"))
+    assert validate.validate_course(root) == [
+        "chapters/basics/chapter.yml: stages[1]: max_tensor_elements must be an integer above 10000"
+    ]
 
 
 def test_bad_slug(bank):
@@ -101,8 +106,17 @@ def test_bad_slug(bank):
 
 
 def test_stage(bank):
-    (bank / "problem.yml").write_text("title:\n  en: Map\n  zh: 映射\ndifficulty: easy\n")
-    assert validate.validate(bank) == ["problem.yml: unknown key 'title'"]
+    root = bank.parent.parent
+    chapter = root / "chapters/basics/chapter.yml"
+    chapter.write_text(chapter.read_text().replace("difficulty: easy", "difficulty: trivial"))
+    assert validate.validate_course(root) == [
+        "chapters/basics/chapter.yml: stages[1]: difficulty must be one of easy, medium, hard"
+    ]
+    chapter.write_text(chapter.read_text().replace("    difficulty: trivial\n", ""))
+    assert validate.validate(bank) == ["the stage needs a difficulty in chapters/basics/chapter.yml"]
+    chapter.write_text(
+        chapter.read_text().replace("status: draft\n", "status: draft\n    difficulty: easy\n")
+    )
 
     later = bank.parent / "later"
     shutil.copytree(bank, later)

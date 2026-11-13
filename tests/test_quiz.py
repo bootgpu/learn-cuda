@@ -29,6 +29,12 @@ def test_files(quiz):
     ]
 
 
+def test_no_difficulty(quiz):
+    chapter = quiz.parent.parent / "chapters/basics/chapter.yml"
+    chapter.write_text(chapter.read_text() + "    difficulty: easy\n")
+    assert validate.validate(quiz) == ["a quiz stage has no difficulty in chapters/basics/chapter.yml"]
+
+
 @pytest.mark.parametrize(
     "old, new, error",
     [

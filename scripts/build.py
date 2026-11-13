@@ -47,14 +47,13 @@ def course_gpus(toml: dict) -> list[str]:
     return gpus if ok and len(set(gpus)) == len(gpus) else []
 
 
-def stage_package(problem_dir: Path, gpus: list[str]) -> dict:
+def stage_package(problem_dir: Path, gpus: list[str], stage: dict) -> dict:
     if (problem_dir / validate.QUIZ).is_file():
         return quiz_package(problem_dir)
-    meta, _ = read_yaml(problem_dir / "problem.yml")
     harness = problem_dir / validate.HARNESS
     return {
         "type": "code",
-        "difficulty": meta["difficulty"],
+        "difficulty": stage["difficulty"],
         "accessTier": "free",
         "gpus": gpus,
         "statement": {
@@ -173,7 +172,9 @@ def build(root: Path, commit: str) -> tuple[list[str], dict | None]:
         "gpus": gpus,
         "parts": parts,
         "stages": {
-            slug: stage_package(pdir / slug, gpus) for slug, s in stages.items() if s["status"] == "published"
+            slug: stage_package(pdir / slug, gpus, s)
+            for slug, s in stages.items()
+            if s["status"] == "published"
         },
     }
 

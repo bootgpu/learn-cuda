@@ -10,6 +10,7 @@ stages:
   - slug: map
     title: { en: Map, zh: 映射 }
     status: draft
+    difficulty: easy
   - slug: later
     title: { en: Later, zh: 以后 }
     status: wip
@@ -29,7 +30,6 @@ def bank(tmp_path: Path) -> Path:
     (p / "starter/cuda").mkdir(parents=True)
     shutil.copyfile(FIXTURES / "map/problem.py", p / "problem.py")
     (p / "starter/cuda/solution.cu").write_text('extern "C" void solve(const float* x, float* y, int N) {}\n')
-    (p / "problem.yml").write_text("difficulty: easy\n")
     (p / "problem.md").write_text("")
     (p / "problem.zh.md").write_text("")
     (p / "learn.md").write_text("TODO\n")

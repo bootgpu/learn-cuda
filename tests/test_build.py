@@ -44,6 +44,7 @@ def test_package(bank):
         "problemPy",
     }
     assert stage["type"] == "code"
+    assert stage["difficulty"] == "easy"
     assert stage["gpus"] == ["t4"]
     assert stage["statement"]["en"] == "# Map\n"
     assert stage["learn"] == {"en": "# Threads\n", "zh": "# 线程\n"}

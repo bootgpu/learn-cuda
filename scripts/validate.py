@@ -1,5 +1,5 @@
-"""Check the course without a GPU: course.yml and the chapters, then each problem's layout, problem.yml,
-imports and seeds, and the test cases. A quiz stage (quiz.yml, bootgpu-api docs/02-quiz.md §2) gets the
+"""Check the course without a GPU: course.yml and the chapters, then each problem's layout, imports and
+seeds, and the test cases. A quiz stage (quiz.yml, bootgpu-api docs/02-quiz.md §2) gets the
 quiz checks instead; its question-writing warnings are printed but do not fail.
 
 Usage: uv run scripts/validate.py                    the course and every problem
@@ -27,7 +27,6 @@ sys.path.insert(0, str(ROOT))
 
 SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 FILES = (
-    "problem.yml",
     "problem.md",
     "problem.zh.md",
     "learn.md",
@@ -42,19 +41,22 @@ HARNESS_FIRST_LINE = '#include "solution.cu"'
 PRIVATE = ("solution", "variants")
 DIFFICULTIES = ("easy", "medium", "hard")
 STATUSES = ("wip", "draft", "published")
+# A code stage's entry in chapter.yml also needs difficulty and may raise max_tensor_elements.
+CODE_STAGE_KEYS = ("difficulty", "max_tensor_elements")
+STAGE_KEYS = ("slug", "title", "status", *CODE_STAGE_KEYS)
 ALLOWED_MODULES = {"bootgpu.problem"}
 SEED_CALLS = {"manual_seed", "manual_seed_all", "seed", "set_rng_state"}
 ROLES = ("in", "out", "inout")
 # The course series these checks are for; bootgpu-api turns community features on or off by it.
 KIND = "learn"
-# Per tensor in every case; a stage that needs more sets max_tensor_elements in problem.yml.
+# Per tensor in every case; a stage that needs more sets max_tensor_elements on its entry in chapter.yml.
 MAX_TENSOR_ELEMENTS = 10_000
 
 # A quiz stage: quiz.yml holds the questions, answers and English, quiz.zh.yml the Chinese text.
 QUIZ = "quiz.yml"
 QUIZ_ZH = "quiz.zh.yml"
 QUIZ_FILES = (QUIZ, QUIZ_ZH, "learn.md", "learn.zh.md")
-CODE_FILES = ("problem.yml", "problem.md", "problem.zh.md", "problem.py", "starter", HARNESS)
+CODE_FILES = ("problem.md", "problem.zh.md", "problem.py", "starter", HARNESS)
 QUESTION_TYPES = {"single": ("options", "answer"), "multiple": ("options", "answers"), "blank": ("accept",)}
 QUESTION_KEYS = ("id", "type", "prompt", "options", "answer", "answers", "accept", "explanation", "feedback")
 TEXT_KEYS = ("id", "prompt", "options", "explanation", "feedback")
@@ -130,12 +132,16 @@ def check_chapter(path: Path) -> tuple[list[str], list[dict]]:
         if not isinstance(s, dict):
             errors.append(f"{w} must be a mapping with slug, title and status")
             continue
-        e = [f"{w}: unknown key {k!r}" for k in s if k not in ("slug", "title", "status")]
+        e = [f"{w}: unknown key {k!r}" for k in s if k not in STAGE_KEYS]
         if not (isinstance(s.get("slug"), str) and SLUG.match(s["slug"])):
             e.append(f"{w}: slug must be lowercase letters, digits and single '-'")
         e += title_errors(w, s.get("title"))
         if s.get("status") not in STATUSES:
             e.append(f"{w}: status must be one of {', '.join(STATUSES)}")
+        if "difficulty" in s and s["difficulty"] not in DIFFICULTIES:
+            e.append(f"{w}: difficulty must be one of {', '.join(DIFFICULTIES)}")
+        if tensor_limit(s) is None:
+            e.append(f"{w}: max_tensor_elements must be an integer above {MAX_TENSOR_ELEMENTS}")
         errors += e
         if not e:
             good.append(s)
@@ -194,26 +200,11 @@ def validate_course(root: Path) -> list[str]:
     return errors
 
 
-def check_yml(path: Path) -> list[str]:
-    meta, err = read_yaml(path)
-    if err:
-        return [f"problem.yml: {err}"]
-    if not isinstance(meta, dict):
-        return ["problem.yml: must be a mapping with difficulty"]
-    keys = ("difficulty", "max_tensor_elements")
-    errors = [f"problem.yml: unknown key {k!r}" for k in meta if k not in keys]
-    if meta.get("difficulty") not in DIFFICULTIES:
-        errors.append(f"problem.yml: difficulty must be one of {', '.join(DIFFICULTIES)}")
-    if "max_tensor_elements" in meta and tensor_limit(meta) is None:
-        errors.append(f"problem.yml: max_tensor_elements must be an integer above {MAX_TENSOR_ELEMENTS}")
-    return errors
-
-
-def tensor_limit(meta: Any) -> int | None:
-    """None when problem.yml sets an invalid max_tensor_elements."""
-    if not isinstance(meta, dict) or "max_tensor_elements" not in meta:
+def tensor_limit(stage: dict) -> int | None:
+    """None when the stage sets an invalid max_tensor_elements."""
+    if "max_tensor_elements" not in stage:
         return MAX_TENSOR_ELEMENTS
-    n = meta["max_tensor_elements"]
+    n = stage["max_tensor_elements"]
     return n if type(n) is int and n > MAX_TENSOR_ELEMENTS else None
 
 
@@ -315,7 +306,7 @@ def check_problem(path: Path, slug: str, limit: int = MAX_TENSOR_ELEMENTS) -> li
             if torch.is_tensor(v) and v.numel() > limit:
                 errors.append(
                     f"problem.py: {name}: {k} has {v.numel():,} elements, above {limit:,};"
-                    " learn tests stay small (max_tensor_elements in problem.yml raises it for one stage)"
+                    " learn tests stay small (max_tensor_elements on the stage in chapter.yml raises it)"
                 )
     errors = list(dict.fromkeys(errors))
     items = sig.items() if isinstance(sig, dict) else []
@@ -571,8 +562,14 @@ def validate(problem_dir: Path, warnings: list[str] | None = None) -> list[str]:
     stage = course_stages(root)[1].get(slug)
     if stage is None:
         errors.append("not a stage in any chapter.yml listed by course.yml")
-    elif stage["status"] == "wip":
-        errors.append(f"the stage is wip in chapters/{stage['chapter']}/chapter.yml; use draft or published")
+    else:
+        where = f"chapters/{stage['chapter']}/chapter.yml"
+        if stage["status"] == "wip":
+            errors.append(f"the stage is wip in {where}; use draft or published")
+        if quiz:
+            errors += [f"a quiz stage has no {k} in {where}" for k in CODE_STAGE_KEYS if k in stage]
+        elif "difficulty" not in stage:
+            errors.append(f"the stage needs a difficulty in {where}")
     if quiz:
         if (problem_dir / QUIZ_ZH).is_file():
             e, w = check_quiz(problem_dir)
@@ -580,10 +577,7 @@ def validate(problem_dir: Path, warnings: list[str] | None = None) -> list[str]:
             if warnings is not None:
                 warnings += w
         return errors
-    limit = MAX_TENSOR_ELEMENTS
-    if (problem_dir / "problem.yml").is_file():
-        errors += check_yml(problem_dir / "problem.yml")
-        limit = tensor_limit(read_yaml(problem_dir / "problem.yml")[0]) or MAX_TENSOR_ELEMENTS
+    limit = (stage and tensor_limit(stage)) or MAX_TENSOR_ELEMENTS
     path = problem_dir / "problem.py"
     if path.is_file():
         try:
