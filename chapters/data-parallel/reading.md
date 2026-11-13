@@ -54,6 +54,8 @@ __global__ void vecAddKernel(const float* a, const float* b, float* c, int n) {
 
 The `n` iterations have not disappeared. When the kernel is launched, CUDA starts a large number of threads at once, and each thread runs the function body once, taking the place of one iteration of the old loop. Handing each iteration of a loop to its own thread is called **loop parallelism**. All threads run the same code but work on different data. This style is called **SPMD** (Single Program, Multiple Data). Each thread on its own still executes its statements in order, top to bottom.
 
+::motion{path="learn-cuda/loop-to-threads"}
+
 Isn't one thread per element too expensive? Starting a thread on a CPU is indeed not cheap. On a GPU, threads are created and scheduled by hardware, which makes them very cheap; launching millions of threads at once is routine.
 
 ## Which Element Does Each Thread Compute
@@ -69,11 +71,11 @@ CUDA does not start threads one by one. It starts them in groups:
 
 Every thread can read a few variables that CUDA sets up in advance:
 
-| Variable      | Meaning                                                                          |
-| ------------- | -------------------------------------------------------------------------------- |
-| `threadIdx.x` | Thread index: the thread's number inside its own block, starting at 0            |
-| `blockIdx.x`  | Block index: the number of the block the thread is in; same for all its threads  |
-| `blockDim.x`  | The number of threads in each block                                              |
+| Variable      | Meaning                                                                         |
+| ------------- | ------------------------------------------------------------------------------- |
+| `threadIdx.x` | Thread index: the thread's number inside its own block, starting at 0           |
+| `blockIdx.x`  | Block index: the number of the block the thread is in; same for all its threads |
+| `blockDim.x`  | The number of threads in each block                                             |
 
 These variables are read-only. The `.x` suffix is there because threads can also be arranged in 2D or 3D (next chapter). The data in this chapter is one-dimensional, so `x` is all we need.
 
@@ -117,7 +119,7 @@ __global__ void vecAddKernel(const float* a, const float* b, float* c, int n) {
 ```
 
 :::warning
-Forgetting `if (i < n)` is the most common beginner mistake. It goes unnoticed when `n` happens to be a multiple of 256, and writes out of bounds for any other `n`. The test cases in this course deliberately use values of `n` that are not multiples of 256.
+Forgetting `if (i < n)` is the most common beginner mistake. It goes unnoticed when `n` happens to be a multiple of the threads per block, and writes out of bounds for any other `n`. The test cases in this course deliberately use values of `n` that common block sizes do not divide evenly.
 :::
 
 ## Launching a Kernel: Configuration and Rounding Up
@@ -179,21 +181,23 @@ To have the GPU do one vector addition, the host goes through five steps:
 
 ::motion{path="learn-cuda/host-steps"}
 
-Step 3 uses the execution configuration from the previous section. Each of the other four steps is a function provided by CUDA (an API).
+Step 3 uses the execution configuration from _Launching a Kernel_. Each of the other four steps is a function provided by CUDA (an API).
 
 After launching a kernel, the host does not stop to wait for it; it moves on right away. The step that actually waits is step 4: the copy back does not start until the kernel has finished. So the `c` that comes back is always the finished result.
+
+::motion{path="learn-cuda/async-launch"}
 
 ### Moving data is expensive
 
 How long does all this copying take? We measured it on an H100 with `n = 2²⁵` (about 33.5 million elements, 128 MB per array), taking the median of 7 runs.
 
-| What                                  | Time    |
-| ------------------------------------- | ------- |
-| CPU, one core, the sequential loop    | 37 ms   |
-| GPU, all five steps                   | 39 ms   |
-| of which: copy to device              | 29.4 ms |
-| of which: copy back to host           | 8.1 ms  |
-| of which: the kernel itself           | 0.19 ms |
+| What                               | Time    |
+| ---------------------------------- | ------- |
+| CPU, one core, the sequential loop | 37 ms   |
+| GPU, all five steps                | 39 ms   |
+| of which: copy to device           | 29.4 ms |
+| of which: copy back to host        | 8.1 ms  |
+| of which: the kernel itself        | 0.19 ms |
 
 The whole GPU run takes about as long as the CPU, and almost all of the time goes into moving data; the kernel itself is nearly two hundred times faster than the CPU loop. That is why real programs do not copy back and forth for every computation. They keep large data in device memory, run several kernels in a row, and copy back only at the end.
 
@@ -225,10 +229,10 @@ A naming habit: pointers to host memory start with `h_`, pointers to device memo
 
 Steps 2 and 4 use the same function, `cudaMemcpy`. Its four arguments are the destination, the source, the number of bytes and the direction, with **the destination first and the source second**. The direction is a constant:
 
-| Direction      | Constant                 |
-| -------------- | ------------------------ |
-| host → device  | `cudaMemcpyHostToDevice` |
-| device → host  | `cudaMemcpyDeviceToHost` |
+| Direction     | Constant                 |
+| ------------- | ------------------------ |
+| host → device | `cudaMemcpyHostToDevice` |
+| device → host | `cudaMemcpyDeviceToHost` |
 
 ```cpp
 cudaMemcpy(d_a, h_a, size, cudaMemcpyHostToDevice);  // to the device
@@ -299,6 +303,8 @@ if (err != cudaSuccess) {
 
 Real projects usually wrap these checks in a macro and apply it to every call.
 
+`cudaGetLastError()` only catches errors in the launch itself, such as the invalid configuration above. Errors that happen while the kernel runs (for example, an out-of-bounds access to an invalid address) are different. The host does not wait for the kernel to finish (see _The five host steps_), so when `cudaGetLastError()` is called the kernel may still be running and such an error is not yet known. It is reported the next time the host waits for the GPU, for example in the return value of the `cudaMemcpy` in step 4. Check that return value too; if no `cudaMemcpy` follows, call `cudaDeviceSynchronize()` to wait for the kernel explicitly and check its return value.
+
 ## Compiling: nvcc
 
 A `.cu` file mixes two kinds of code, one for the CPU and one for the GPU, plus keywords like `__global__` and syntax like `<<<>>>` that an ordinary C++ compiler does not understand. So it is compiled with CUDA's own compiler, **nvcc**:
@@ -312,11 +318,11 @@ At run time, the driver picks the machine code that matches the GPU. If the prog
 
 ## The Three Function Qualifiers
 
-| Qualifier    | Runs on | Called from                                | Notes                                                    |
-| ------------ | ------- | ------------------------------------------ | -------------------------------------------------------- |
-| `__global__` | device  | host                                       | A kernel; every call starts a new grid                   |
-| `__device__` | device  | a kernel or another `__device__` function  | An ordinary call, no new threads; the host cannot call it |
-| `__host__`   | host    | host                                       | An ordinary CPU function; the default when nothing is written |
+| Qualifier    | Runs on | Called from                               | Notes                                                         |
+| ------------ | ------- | ----------------------------------------- | ------------------------------------------------------------- |
+| `__global__` | device  | host                                      | A kernel; every call starts a new grid                        |
+| `__device__` | device  | a kernel or another `__device__` function | An ordinary call, no new threads; the host cannot call it     |
+| `__host__`   | host    | host                                      | An ordinary CPU function; the default when nothing is written |
 
 `__host__` and `__device__` can be used together: the compiler then builds two versions, callable from both the CPU and the GPU.
 
@@ -327,6 +333,6 @@ The CUDA extensions used in this chapter fall into just four groups:
 1. Function qualifiers: `__global__`, `__device__`, `__host__`.
 2. The kernel launch syntax `<<<blocks, threads>>>`.
 3. Variables set up in advance: `threadIdx`, `blockIdx`, `blockDim`.
-4. APIs for device memory and data movement: `cudaMalloc`, `cudaMemcpy`, `cudaFree`, plus `cudaGetLastError` for error checking.
+4. APIs for device memory and data movement: `cudaMalloc`, `cudaMemcpy`, `cudaFree`, plus `cudaGetLastError` and `cudaDeviceSynchronize` for error checking.
 
 This chapter covers only the small part you need now; other features come later when they are needed. What really matters is the parallel thinking behind it: **writing a kernel means writing only the work of one thread, which is one iteration of the old loop.** The whole loop becomes a large number of threads all running the same kernel; each thread uses its own index to find its own element, and an `if` stops the extra threads.
