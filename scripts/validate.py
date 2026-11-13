@@ -46,9 +46,9 @@ FENCE = re.compile(r"^ {0,3}(```|~~~)")
 H1 = re.compile(r"^ {0,3}#(\s|$)")
 DIFFICULTIES = ("easy", "medium", "hard")
 STATUSES = ("wip", "draft", "published")
-# A code stage's entry in chapter.yml also needs difficulty and summary, and may raise max_tensor_elements.
-CODE_STAGE_KEYS = ("difficulty", "summary", "max_tensor_elements")
-STAGE_KEYS = ("slug", "title", "status", *CODE_STAGE_KEYS)
+# Every stage needs a summary; code stages also need difficulty and may raise max_tensor_elements.
+CODE_STAGE_KEYS = ("difficulty", "max_tensor_elements")
+STAGE_KEYS = ("slug", "title", "status", "summary", *CODE_STAGE_KEYS)
 ALLOWED_MODULES = {"bootgpu.problem"}
 SEED_CALLS = {"manual_seed", "manual_seed_all", "seed", "set_rng_state"}
 ROLES = ("in", "out", "inout")
@@ -613,10 +613,11 @@ def validate(problem_dir: Path, warnings: list[str] | None = None) -> list[str]:
             errors.append(f"the stage is wip in {where}; use draft or published")
         if quiz:
             errors += [f"a quiz stage has no {k} in {where}" for k in CODE_STAGE_KEYS if k in stage]
-        else:
-            errors += [
-                f"the stage needs a {k} in {where}" for k in ("difficulty", "summary") if k not in stage
-            ]
+        errors += [
+            f"the stage needs a {k} in {where}"
+            for k in (("summary",) if quiz else ("difficulty", "summary"))
+            if k not in stage
+        ]
     if quiz:
         if (problem_dir / QUIZ_ZH).is_file():
             e, w = check_quiz(problem_dir)

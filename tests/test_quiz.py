@@ -31,11 +31,17 @@ def test_files(quiz):
 
 def test_no_difficulty(quiz):
     chapter = quiz.parent.parent / "chapters/basics/chapter.yml"
-    chapter.write_text(chapter.read_text() + "    difficulty: easy\n    summary: { en: Quiz., zh: 测验。 }\n")
-    assert validate.validate(quiz) == [
-        "a quiz stage has no difficulty in chapters/basics/chapter.yml",
-        "a quiz stage has no summary in chapters/basics/chapter.yml",
-    ]
+    chapter.write_text(chapter.read_text() + "    difficulty: easy\n")
+    assert validate.validate(quiz) == ["a quiz stage has no difficulty in chapters/basics/chapter.yml"]
+
+
+def test_needs_summary(quiz):
+    edit(
+        quiz.parent.parent / "chapters/basics/chapter.yml",
+        "    summary: { en: Threads and blocks., zh: 线程与 block。 }\n",
+        "",
+    )
+    assert validate.validate(quiz) == ["the stage needs a summary in chapters/basics/chapter.yml"]
 
 
 @pytest.mark.parametrize(

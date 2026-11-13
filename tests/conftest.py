@@ -107,7 +107,9 @@ def quiz(bank: Path) -> Path:
     root = bank.parent.parent
     chapter = root / "chapters/basics/chapter.yml"
     chapter.write_text(
-        chapter.read_text() + "  - slug: check\n    title: { en: Check, zh: 小测 }\n    status: draft\n"
+        chapter.read_text()
+        + "  - slug: check\n    title: { en: Check, zh: 小测 }\n    status: draft\n"
+        + "    summary: { en: Threads and blocks., zh: 线程与 block。 }\n"
     )
     q = root / "problems/check"
     q.mkdir()
