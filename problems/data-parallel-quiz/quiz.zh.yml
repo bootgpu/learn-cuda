@@ -1,0 +1,126 @@
+questions:
+  - id: data-parallel
+    prompt: 下面哪个计算属于数据并行，适合拆成「一个元素一个线程」交给 GPU？
+    options:
+      - 把录音的每个采样乘 0.5，音量减半
+      - 求一个数的平方根
+      - 文本编辑器一边自动保存，一边做拼写检查
+    feedback:
+      1: 只有一份计算，没有可以分给多个线程的数据。
+      2: 这是两件不同的事同时做，属于任务并行，能同时做的份数不随数据量增长。
+    explanation: 每个采样乘 0.5 只用到它自己，跟别的采样无关，几百万个采样可以同时算，这就是数据并行。
+
+  - id: block-of-index
+    prompt: |-
+      每个 block 有 256 个线程，每个线程用下面这行算出自己处理的元素：
+
+      ```cpp
+      int i = blockIdx.x * blockDim.x + threadIdx.x;
+      ```
+
+      处理 `i = 600` 这个元素的线程，它的 `blockIdx.x` 是几？
+    explanation: 0 号 block 管 0–255，1 号管 256–511，2 号管 512–767。600 = 2 × 256 + 88，所以是 2 号 block 里 `threadIdx.x` 为 88 的线程。
+
+  - id: idle-threads
+    prompt: |-
+      `n = 1000`，每个 block 256 个线程，block 个数按 `(n + 256 - 1) / 256` 算。一共有多少个线程会被 `if (i < n)` 挡住、什么也不做？
+    explanation: (1000 + 255) / 256 整数相除得 4，共开 4 × 256 = 1024 个线程。`i` 从 1000 到 1023 的 24 个线程超出数组，被 `if` 挡住。
+
+  - id: block-order
+    prompt: 一个 kernel 里，1 号 block 的线程要读 0 号 block 刚写进数组的值，代码假定 0 号 block 已经先跑完。这样写可靠吗？
+    options:
+      - 可靠：block 按编号从小到大依次执行
+      - 不可靠：不同 block 不能读写同一个数组
+      - 不可靠：block 的执行顺序没有任何保证
+      - 可靠：只要 block 数不超过 GPU 能同时跑的数量
+    feedback:
+      0: CUDA 不保证 block 按编号执行，可能是任意次序，也可能同时跑。
+      1: 所有 block 都能读写显存里的同一个数组，问题出在先后顺序上。
+      3: 就算所有 block 同时跑，也不能保证 0 号先跑完。
+    explanation: block 谁先谁后、是否同时跑，CUDA 都不保证，代码不能依赖顺序。也正因为不讲顺序，同一份程序换上更大的 GPU 能自动铺开、跑得更快。
+
+  - id: keep-on-device
+    prompt: 一个数组要依次经过 3 个 kernel：第 2 个用第 1 个的结果，第 3 个用第 2 个的结果，host 只要最后的结果。拷贝怎么安排最好？
+    options:
+      - 每个 kernel 前拷进、后拷回，一共拷 6 次
+      - 拷进一次，连跑 3 个 kernel，最后拷回一次
+      - 拷进一次，每个 kernel 跑完都拷回一次
+    feedback:
+      0: 中间结果本来就在显存里，下一个 kernel 直接用就行，来回拷全是白花的时间。
+      2: host 用不到中间结果，前两次拷回都是白花的时间。
+    explanation: 在内存和显存之间搬数据，往往比 kernel 本身慢得多。中间结果留在显存里，只在开头拷进、最后拷回各一次。
+
+  - id: read-device-pointer
+    prompt: |-
+      `d_c` 是用 `cudaMalloc` 分到的显存，kernel 已经把结果写进去了。想在 host 里打印第一个结果，写了：
+
+      ```cpp
+      printf("%f\n", d_c[0]);
+      ```
+
+      会怎样？
+    options:
+      - 正常打印出第一个结果
+      - 程序出错：host 不能直接读显存
+      - 编译不通过：host 代码里不能出现 `d_c`
+      - 打印出 0：kernel 还没来得及算完
+    feedback:
+      0: '`d_c` 里存的是显存地址，那块数据不在内存里，host 读不到。'
+      2: host 代码可以使用 `d_c`，比如把它传给 `cudaMemcpy` 或 kernel，只是不能直接读它指向的数据。
+      3: 问题不在时间，就算 kernel 早已算完，host 也不能直接读显存。
+    explanation: 指向显存的指针，在 host 里只能交给 CUDA 的 API 或传给 kernel。要看结果，先用 `cudaMemcpy` 把 `d_c` 拷回内存里的 `h_c`，再读 `h_c[0]`。
+
+  - id: memcpy-order
+    prompt: |-
+      本意是把 `n` 个 `int` 从内存里的 `h_x` 拷进显存里的 `d_x`，写成了：
+
+      ```cpp
+      cudaMemcpy(h_x, d_x, n * sizeof(int), cudaMemcpyHostToDevice);
+      ```
+
+      错在哪？
+    options:
+      - 目的地和源头写反了
+      - 方向常量应改成 `cudaMemcpyDeviceToHost`
+      - 字节数应写成 `n`
+      - 这一行没有错
+    feedback:
+      1: 方向改成 DeviceToHost，就变成把 `d_x` 拷回 `h_x`，跟本意相反。
+      2: 第三个参数是字节数，`n` 个 `int` 是 `n * sizeof(int)` 字节，这里写对了。
+      3: '`cudaMemcpy` 的第一个参数是目的地，这里写成了 `h_x`。'
+    explanation: 参数依次是目的地、源头、字节数、方向。正确写法是 `cudaMemcpy(d_x, h_x, n * sizeof(int), cudaMemcpyHostToDevice);`。
+
+  - id: launch-error
+    prompt: 每个 block 开了 2000 个线程，超过了上限。kernel 没跑起来，程序却没报错，最后拿到一堆错的结果。想在启动后马上发现这个错误，该怎么做？
+    options:
+      - 读 kernel 调用语句的返回值
+      - 在 kernel 里加一句 `printf` 把错误打出来
+      - 检查前面 `cudaMalloc` 的返回值
+      - 启动后调用 `cudaGetLastError()`
+    feedback:
+      0: kernel 没有返回值，启动语句拿不到错误码。
+      1: kernel 根本没跑起来，里面的 `printf` 一句也不会执行。
+      2: 显存分配成功了，出错的是后面的启动，`cudaMalloc` 的返回值看不出来。
+    explanation: kernel 启动不返回错误码，要紧跟着调用 `cudaGetLastError()`，看结果是不是 `cudaSuccess`。
+
+  - id: call-from-kernel
+    prompt: 辅助函数 `float toF(float c)` 要在 kernel 里调用。函数前面写哪些可以？
+    options:
+      - '`__device__`'
+      - '`__host__ __device__`'
+      - '`__global__`'
+      - 什么都不写
+    explanation: '`__device__` 函数在 GPU 上执行，能被 kernel 调用；`__host__ __device__` 编出两个版本，CPU 和 GPU 都能调。`__global__` 标的是 kernel，从 host 用 `<<<...>>>` 启动，会开出新的 grid，不是一次普通的函数调用。什么都不写就是 host 函数，只能在 CPU 上调用。'
+
+  - id: malloc-address
+    prompt: 有人写成 `cudaMalloc(d_a, bytes)`，编译通不过，要写成 `cudaMalloc(&d_a, bytes)`。为什么第一个参数要传 `d_a` 的地址？
+    options:
+      - '`cudaMalloc` 用返回值交出地址，`&` 只是习惯写法'
+      - 加了 `&`，它才会顺便把数据拷进显存
+      - 它要把分到的显存地址写进变量 `d_a`
+      - 取 `d_a` 的地址，才能把 host 指针变成显存指针
+    feedback:
+      0: '`cudaMalloc` 的返回值是错误码，用来报告分配成没成功。'
+      1: '`cudaMalloc` 只分配显存，拷数据是 `cudaMemcpy` 的事。'
+      3: '`d_a` 是 host 上的一个普通变量，`&d_a` 只是它的地址，什么也不转换；分配之后，`d_a` 里存的才是显存地址。'
+    explanation: '`cudaMalloc` 的返回值要留着报告错误，所以分到的显存地址只能写进你给的变量里。只传 `d_a` 的值，它改不了 `d_a`；传 `&d_a`，它才能把地址写进去。`cudaFree` 不用往 `d_a` 里写东西，所以直接传 `d_a`。'

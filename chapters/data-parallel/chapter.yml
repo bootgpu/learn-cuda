@@ -10,4 +10,4 @@ stages:
     status: published
   - slug: data-parallel-quiz
     title: { en: Chapter Quiz, zh: 本章测验 }
-    status: wip
+    status: published

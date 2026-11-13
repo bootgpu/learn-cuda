@@ -1,0 +1,146 @@
+questions:
+  - id: data-parallel
+    type: single
+    prompt: Which of these is data parallel, a good fit for one thread per element on the GPU?
+    options:
+      - Scale every sample of an audio clip by 0.5
+      - Take the square root of one number
+      - A text editor autosaves while it spell-checks
+    answer: 0
+    feedback:
+      1: There is only one computation, so there is no data to hand out to many threads.
+      2: These are two different jobs running at once, which is task parallelism; how many can run at once does not grow with the data.
+    explanation: Scaling a sample uses only that sample and none of the others, so millions of samples can be computed at once. That is data parallelism.
+
+  - id: block-of-index
+    type: blank
+    prompt: |-
+      Each block has 256 threads, and each thread finds its element with this line:
+
+      ```cpp
+      int i = blockIdx.x * blockDim.x + threadIdx.x;
+      ```
+
+      What is `blockIdx.x` for the thread that handles element `i = 600`?
+    accept: { numeric: 2 }
+    explanation: Block 0 covers 0–255, block 1 covers 256–511, block 2 covers 512–767. 600 = 2 × 256 + 88, so it is the thread with `threadIdx.x` 88 in block 2.
+
+  - id: idle-threads
+    type: blank
+    prompt: |-
+      `n = 1000`, each block has 256 threads, and the number of blocks is `(n + 256 - 1) / 256`. How many threads are stopped by `if (i < n)` and do nothing?
+    accept: { numeric: 24 }
+    explanation: (1000 + 255) / 256 is 4 in integer division, so 4 × 256 = 1024 threads are launched. The 24 threads with `i` from 1000 to 1023 are past the end of the array and the `if` stops them.
+
+  - id: block-order
+    type: single
+    prompt: In a kernel, the threads of block 1 read values that block 0 has just written to an array, and the code assumes block 0 has already finished. Is this reliable?
+    options:
+      - 'Yes: blocks run one by one in index order'
+      - 'No: different blocks cannot use the same array'
+      - 'No: there is no guarantee on the order blocks run in'
+      - 'Yes, as long as the GPU can run all the blocks at once'
+    answer: 2
+    feedback:
+      0: CUDA does not run blocks in index order; they may run in any order, or at the same time.
+      1: All blocks can read and write the same array in device memory; the problem is the order.
+      3: Even if all blocks run at the same time, nothing makes block 0 finish first.
+    explanation: CUDA makes no promise about which block runs first or whether blocks run together, so code must not depend on the order. Because blocks are unordered, the same program spreads out over a bigger GPU and runs faster without changes.
+
+  - id: keep-on-device
+    type: single
+    prompt: An array goes through 3 kernels in turn; the 2nd uses the 1st one's result and the 3rd uses the 2nd one's. The host only needs the final result. What is the best way to arrange the copies?
+    options:
+      - Copy in before and out after every kernel, 6 copies in all
+      - Copy in once, run all 3 kernels, copy out once
+      - Copy in once, and copy out after every kernel
+    answer: 1
+    feedback:
+      0: The intermediate results are already in device memory and the next kernel can use them there; the round trips are wasted time.
+      2: The host never uses the intermediate results, so the first two copies out are wasted time.
+    explanation: Moving data between host and device memory is often much slower than the kernel itself. Keep the intermediate results in device memory, and copy in once at the start and out once at the end.
+
+  - id: read-device-pointer
+    type: single
+    prompt: |-
+      `d_c` points to device memory from `cudaMalloc`, and the kernel has written its results there. To print the first result on the host, someone writes:
+
+      ```cpp
+      printf("%f\n", d_c[0]);
+      ```
+
+      What happens?
+    options:
+      - It prints the first result
+      - 'Error: the host cannot read device memory'
+      - 'Compile error: host code cannot mention `d_c`'
+      - 'It prints 0: the kernel has not finished yet'
+    answer: 1
+    feedback:
+      0: '`d_c` holds a device memory address; that data is not in host memory, so the host cannot read it.'
+      2: Host code may use `d_c`, for example pass it to `cudaMemcpy` or to a kernel; it just cannot read the data it points to.
+      3: Timing is not the issue; even after the kernel has finished, the host cannot read device memory directly.
+    explanation: On the host, a pointer to device memory can only be handed to CUDA API calls or passed to a kernel. To see the result, first copy `d_c` back to `h_c` in host memory with `cudaMemcpy`, then read `h_c[0]`.
+
+  - id: memcpy-order
+    type: single
+    prompt: |-
+      The intent is to copy `n` `int`s from `h_x` in host memory to `d_x` in device memory, but the code says:
+
+      ```cpp
+      cudaMemcpy(h_x, d_x, n * sizeof(int), cudaMemcpyHostToDevice);
+      ```
+
+      What is wrong?
+    options:
+      - The destination and the source are swapped
+      - The direction should be `cudaMemcpyDeviceToHost`
+      - The size should be `n`
+      - Nothing is wrong with this line
+    answer: 0
+    feedback:
+      1: With DeviceToHost it would copy `d_x` back to `h_x`, the opposite of the intent.
+      2: The third argument is a byte count; `n` `int`s are `n * sizeof(int)` bytes, which is what the line has.
+      3: The first argument of `cudaMemcpy` is the destination, and here it is `h_x`.
+    explanation: The arguments are destination, source, byte count, direction. The correct call is `cudaMemcpy(d_x, h_x, n * sizeof(int), cudaMemcpyHostToDevice);`.
+
+  - id: launch-error
+    type: single
+    prompt: A kernel is launched with 2000 threads per block, over the limit. The kernel never runs, yet the program reports nothing and ends up with wrong results. How do you catch this right after the launch?
+    options:
+      - Read the return value of the kernel launch
+      - Put a `printf` inside the kernel to report it
+      - Check what the earlier `cudaMalloc` returned
+      - Call `cudaGetLastError()` after the launch
+    answer: 3
+    feedback:
+      0: A kernel has no return value, so the launch statement gives you no error code.
+      1: The kernel never runs, so no `printf` inside it ever executes.
+      2: The allocation succeeded; it is the launch after it that failed, and `cudaMalloc`'s result cannot show that.
+    explanation: A kernel launch returns no error code, so call `cudaGetLastError()` right after it and check that the result is `cudaSuccess`.
+
+  - id: call-from-kernel
+    type: multiple
+    prompt: A helper function `float toF(float c)` is to be called inside a kernel. Which of these can go in front of it?
+    options:
+      - '`__device__`'
+      - '`__host__ __device__`'
+      - '`__global__`'
+      - Nothing
+    answers: [0, 1]
+    explanation: A `__device__` function runs on the GPU and a kernel can call it; `__host__ __device__` builds two versions, callable from both CPU and GPU. `__global__` marks a kernel, which the host launches with `<<<...>>>` to start a new grid; it is not an ordinary function call. With nothing in front, it is a host function, callable only on the CPU.
+
+  - id: malloc-address
+    type: single
+    prompt: Someone writes `cudaMalloc(d_a, bytes)` and it does not compile; it must be `cudaMalloc(&d_a, bytes)`. Why does the first argument take the address of `d_a`?
+    options:
+      - '`cudaMalloc` returns the address; the `&` is just habit'
+      - With the `&`, it also copies the data to the device
+      - It has to write the new device address into `d_a`
+      - Taking the address turns a host pointer into a device pointer
+    answer: 2
+    feedback:
+      0: '`cudaMalloc` returns an error code, which tells you whether the allocation worked.'
+      1: '`cudaMalloc` only allocates device memory; copying data is the job of `cudaMemcpy`.'
+      3: '`d_a` is an ordinary variable on the host and `&d_a` is just its address; nothing is converted. After the allocation, `d_a` holds a device address.'
+    explanation: The return value of `cudaMalloc` is kept for reporting errors, so the new device address has to be written into a variable you hand it. Given only the value of `d_a`, it cannot change `d_a`; given `&d_a`, it can write the address there. `cudaFree` writes nothing into `d_a`, so it takes `d_a` itself.
