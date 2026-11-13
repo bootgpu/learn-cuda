@@ -177,15 +177,15 @@ The data a program works on, whether read from a file or received over the netwo
 
 To have the GPU do one vector addition, the host goes through five steps:
 
-1. Allocate three regions of device memory for `a`, `b` and `c`.
-2. Copy `a` and `b` from host memory to device memory.
-3. Launch the kernel to do the computation.
-4. Copy the result `c` from device memory back to host memory.
-5. Free the device memory.
+1. Allocate three regions of device memory for `a`, `b` and `c` (`cudaMalloc`).
+2. Copy `a` and `b` from host memory to device memory (`cudaMemcpy`).
+3. Launch the kernel to do the computation (`<<<…>>>`).
+4. Copy the result `c` from device memory back to host memory (`cudaMemcpy`).
+5. Free the device memory (`cudaFree`).
 
 ::motion{path="learn-cuda/host-steps"}
 
-Step 3 uses the execution configuration from _Launching a Kernel_. Each of the other four steps is a function provided by CUDA (an API).
+Step 3 uses the execution configuration from _Launching a Kernel_. The other steps call API functions provided by CUDA, introduced one by one below.
 
 After launching a kernel, the host does not stop to wait for it; it moves on right away. The step that actually waits is step 4: the copy back does not start until the kernel has finished. So the `c` that comes back is always the finished result.
 
@@ -195,13 +195,13 @@ After launching a kernel, the host does not stop to wait for it; it moves on rig
 
 How long does all this copying take? We measured it on an H100 with `n = 2²⁵` (about 33.5 million elements, 128 MB per array), taking the median of 7 runs.
 
-| What                               | Time    |
-| ---------------------------------- | ------- |
-| CPU, one core, the sequential loop | 37 ms   |
-| GPU, all five steps                | 39 ms   |
-| of which: copy to device           | 29.4 ms |
-| of which: copy back to host        | 8.1 ms  |
-| of which: the kernel itself        | 0.19 ms |
+| What                               |    Time | Share of GPU run |
+| ---------------------------------- | ------: | ---------------: |
+| CPU, one core, the sequential loop |   37 ms |                — |
+| GPU, all five steps                |   39 ms |             100% |
+| ├ copy to device                   | 29.4 ms |              75% |
+| ├ copy back to host                |  8.1 ms |              21% |
+| └ the kernel itself                | 0.19 ms |             0.5% |
 
 The whole GPU run takes about as long as the CPU, and almost all of the time goes into moving data; the kernel itself is nearly two hundred times faster than the CPU loop. That is why real programs do not copy back and forth for every computation. They keep large data in device memory, run several kernels in a row, and copy back only at the end.
 
@@ -305,7 +305,25 @@ if (err != cudaSuccess) {
 }
 ```
 
-Real projects usually wrap these checks in a macro and apply it to every call.
+Real projects usually wrap these checks in a macro and put it around every call:
+
+```cpp
+#define CUDA_CHECK(call)                                  \
+    do {                                                  \
+        cudaError_t err = (call);                         \
+        if (err != cudaSuccess) {                         \
+            printf("%s:%d: %s\n", __FILE__, __LINE__,     \
+                   cudaGetErrorString(err));              \
+            exit(1);                                      \
+        }                                                 \
+    } while (0)
+
+CUDA_CHECK(cudaMalloc(&d_a, size));
+vecAddKernel<<<blocks, threads>>>(d_a, d_b, d_c, n);
+CUDA_CHECK(cudaGetLastError());
+```
+
+It is a macro rather than a function because `__FILE__` and `__LINE__` expand to the file name and line number where it is used, so an error points straight at the call that failed. The outer `do { … } while (0)` lets the macro act like a single ordinary statement, even inside an `if`/`else`.
 
 `cudaGetLastError()` only catches errors in the launch itself, such as the invalid configuration above. Errors that happen while the kernel runs (for example, an out-of-bounds access to an invalid address) are different. The host does not wait for the kernel to finish (see _The five host steps_), so when `cudaGetLastError()` is called the kernel may still be running and such an error is not yet known. It is reported the next time the host waits for the GPU, for example in the return value of the `cudaMemcpy` in step 4. Check that return value too; if no `cudaMemcpy` follows, call `cudaDeviceSynchronize()` to wait for the kernel explicitly and check its return value.
 
@@ -317,6 +335,8 @@ A `.cu` file mixes two kinds of code, one for the CPU and one for the GPU, plus 
 2. The host half goes to the system's ordinary C++ compiler and becomes CPU machine code.
 3. nvcc compiles the device half itself into GPU machine code, and also keeps a copy as **PTX** (an intermediate code for GPUs).
 4. Both halves go into the final program.
+
+::motion{path="learn-cuda/nvcc-compile"}
 
 At run time, the driver picks the machine code that matches the GPU. If the program runs on a newer GPU with no matching machine code, the driver compiles the PTX on the spot.
 
