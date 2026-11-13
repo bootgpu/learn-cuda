@@ -177,6 +177,8 @@ To have the GPU do one vector addition, the host goes through five steps:
 4. Copy the result `c` from device memory back to host memory.
 5. Free the device memory.
 
+::motion{path="learn-cuda/host-steps"}
+
 Step 3 uses the execution configuration from the previous section. Each of the other four steps is a function provided by CUDA (an API).
 
 After launching a kernel, the host does not stop to wait for it; it moves on right away. The step that actually waits is step 4: the copy back does not start until the kernel has finished. So the `c` that comes back is always the finished result.
@@ -208,6 +210,8 @@ cudaFree(d_a);
 
 - The second is the number of bytes. `n` floats at 4 bytes each is `n * sizeof(float)`.
 - The first is not `d_a` but **the address of `d_a`**, `&d_a`. C's `malloc` hands you the address as its return value, but `cudaMalloc` keeps its return value for reporting errors (see _Checking for Errors_). So it works the other way: you give it the address of the variable `d_a`, and it writes the address of the allocated device memory straight into `d_a`. Older code often writes `cudaMalloc((void**)&d_a, size)`; it does the same thing, and the cast is no longer needed.
+
+::motion{path="learn-cuda/device-pointer"}
 
 `cudaFree` does not need to write anything into `d_a`; it only needs the address, so you pass `d_a` itself.
 

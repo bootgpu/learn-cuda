@@ -179,6 +179,8 @@ vecAddKernel<<<blocks, threads>>>(d_a, d_b, d_c, n);
 4. 把算好的 `c` 从显存拷回内存。
 5. 释放显存。
 
+::motion{path="learn-cuda/host-steps"}
+
 第 3 步用上一节的启动配置，其余四步各对应一个 CUDA 提供的函数（API）。
 
 启动 kernel 之后，host 并不会停下来等它算完，而是马上接着往下走。真正停下来等的是第 4 步：拷回要等 kernel 算完才开始。所以拷回来的 `c` 一定是算好的结果。
@@ -210,6 +212,8 @@ cudaFree(d_a);
 
 - 第二个参数是要多少字节。`n` 个 `float`，每个 4 字节，就是 `n * sizeof(float)`。
 - 第一个参数传的不是 `d_a`，而是 **`d_a` 的地址** `&d_a`。C 的 `malloc` 靠返回值把地址交给你，而 `cudaMalloc` 的返回值要留着报告出没出错（见「检查错误」）。所以它换了个办法：你把变量 `d_a` 的地址给它，它把分到的显存地址直接写进 `d_a`。老代码常写成 `cudaMalloc((void**)&d_a, size)`，作用一样，现在不用写这个强制转换了。
+
+::motion{path="learn-cuda/device-pointer"}
 
 `cudaFree` 不用往 `d_a` 里写东西，只要知道地址就够了，所以直接传 `d_a`。
 
