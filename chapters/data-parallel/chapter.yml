@@ -6,10 +6,16 @@ stages:
     title: { en: Celsius to Fahrenheit, zh: 摄氏转华氏 }
     status: published
     difficulty: easy
+    summary:
+      en: Compute each thread's global index and guard extra threads with i < n.
+      zh: 用 blockIdx、blockDim、threadIdx 算出每个线程的全局下标，并用 i < n 挡住多出来的线程。
   - slug: two-elements-per-thread
     title: { en: Two Elements per Thread, zh: 一个线程算两个元素 }
     status: published
     difficulty: easy
+    summary:
+      en: "Half as many threads as elements: each thread covers two, checking the second against n."
+      zh: 线程数只有元素的一半：重新推导下标公式，让每个线程算两个元素，第二个要单独和 n 比。
   - slug: data-parallel-quiz
     title: { en: Chapter Quiz, zh: 本章测验 }
     status: published

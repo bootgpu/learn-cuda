@@ -28,7 +28,12 @@ def test_package(bank):
         "gpus": ["t4"],
     }
     assert pkg["parts"][0]["chapters"][0]["stages"] == [
-        {"slug": "map", "title": {"en": "Map", "zh": "映射"}, "status": "published"},
+        {
+            "slug": "map",
+            "title": {"en": "Map", "zh": "映射"},
+            "status": "published",
+            "summary": {"en": "One thread per element.", "zh": "一个线程算一个元素。"},
+        },
         {"slug": "later", "title": {"en": "Later", "zh": "以后"}, "status": "wip"},
     ]
     assert list(pkg["stages"]) == ["map"]

@@ -117,6 +117,15 @@ def test_stage(bank):
     chapter.write_text(
         chapter.read_text().replace("status: draft\n", "status: draft\n    difficulty: easy\n")
     )
+    summary = "    summary: { en: One thread per element., zh: 一个线程算一个元素。 }\n"
+    chapter.write_text(chapter.read_text().replace(summary, "    summary: { en: ' ' }\n"))
+    assert validate.validate_course(root) == [
+        "chapters/basics/chapter.yml: stages[1]: summary.en must be a string of 1-200 characters",
+        "chapters/basics/chapter.yml: stages[1]: summary.zh must be a string of 1-200 characters",
+    ]
+    chapter.write_text(chapter.read_text().replace("    summary: { en: ' ' }\n", ""))
+    assert validate.validate(bank) == ["the stage needs a summary in chapters/basics/chapter.yml"]
+    chapter.write_text(chapter.read_text().replace("difficulty: easy\n", "difficulty: easy\n" + summary))
 
     later = bank.parent / "later"
     shutil.copytree(bank, later)

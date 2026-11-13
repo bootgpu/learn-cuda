@@ -41,8 +41,8 @@ HARNESS_FIRST_LINE = '#include "solution.cu"'
 PRIVATE = ("solution", "variants")
 DIFFICULTIES = ("easy", "medium", "hard")
 STATUSES = ("wip", "draft", "published")
-# A code stage's entry in chapter.yml also needs difficulty and may raise max_tensor_elements.
-CODE_STAGE_KEYS = ("difficulty", "max_tensor_elements")
+# A code stage's entry in chapter.yml also needs difficulty and summary, and may raise max_tensor_elements.
+CODE_STAGE_KEYS = ("difficulty", "summary", "max_tensor_elements")
 STAGE_KEYS = ("slug", "title", "status", *CODE_STAGE_KEYS)
 ALLOWED_MODULES = {"bootgpu.problem"}
 SEED_CALLS = {"manual_seed", "manual_seed_all", "seed", "set_rng_state"}
@@ -89,14 +89,14 @@ def read_yaml(path: Path) -> tuple[Any, str | None]:
         return None, f"not valid YAML: {str(e).splitlines()[0]}"
 
 
-def title_errors(where: str, title: Any) -> list[str]:
+def title_errors(where: str, title: Any, key: str = "title") -> list[str]:
     if not isinstance(title, dict):
-        return [f"{where}: title must be a mapping with en and zh"]
-    errors = [f"{where}: unknown key title.{k}" for k in title if k not in ("en", "zh")]
+        return [f"{where}: {key} must be a mapping with en and zh"]
+    errors = [f"{where}: unknown key {key}.{k}" for k in title if k not in ("en", "zh")]
     for lang in ("en", "zh"):
         t = title.get(lang)
         if not (isinstance(t, str) and 1 <= len(t.strip()) <= 200):
-            errors.append(f"{where}: title.{lang} must be a string of 1-200 characters")
+            errors.append(f"{where}: {key}.{lang} must be a string of 1-200 characters")
     return errors
 
 
@@ -140,6 +140,8 @@ def check_chapter(path: Path) -> tuple[list[str], list[dict]]:
             e.append(f"{w}: status must be one of {', '.join(STATUSES)}")
         if "difficulty" in s and s["difficulty"] not in DIFFICULTIES:
             e.append(f"{w}: difficulty must be one of {', '.join(DIFFICULTIES)}")
+        if "summary" in s:
+            e += title_errors(w, s["summary"], "summary")
         if tensor_limit(s) is None:
             e.append(f"{w}: max_tensor_elements must be an integer above {MAX_TENSOR_ELEMENTS}")
         errors += e
@@ -568,8 +570,10 @@ def validate(problem_dir: Path, warnings: list[str] | None = None) -> list[str]:
             errors.append(f"the stage is wip in {where}; use draft or published")
         if quiz:
             errors += [f"a quiz stage has no {k} in {where}" for k in CODE_STAGE_KEYS if k in stage]
-        elif "difficulty" not in stage:
-            errors.append(f"the stage needs a difficulty in {where}")
+        else:
+            errors += [
+                f"the stage needs a {k} in {where}" for k in ("difficulty", "summary") if k not in stage
+            ]
     if quiz:
         if (problem_dir / QUIZ_ZH).is_file():
             e, w = check_quiz(problem_dir)

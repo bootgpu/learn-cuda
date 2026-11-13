@@ -156,6 +156,7 @@ def build(root: Path, commit: str) -> tuple[list[str], dict | None]:
                     "title": data["title"],
                     "stages": [
                         {"slug": s["slug"], "title": s["title"], "status": s["status"]}
+                        | ({"summary": s["summary"]} if "summary" in s else {})
                         for s in data["stages"]
                     ],
                 }
