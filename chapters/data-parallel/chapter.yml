@@ -7,18 +7,18 @@ stages:
     status: published
     summary:
       en: "Data parallelism, a thread's global index and block, the i < n bounds check, launch configuration, and moving data to and from the GPU."
-      zh: 数据并行、线程的全局下标与所在 block、用 i < n 做边界检查、启动配置，以及把数据搬进搬出显存。
+      zh: 数据并行、线程的全局编号与所在 block、用 i < n 做边界检查、启动配置，以及在内存与显存之间传输数据。
   - slug: celsius-to-fahrenheit
     title: { en: Celsius to Fahrenheit, zh: 摄氏转华氏 }
     status: published
     difficulty: easy
     summary:
       en: Compute each thread's global index and guard extra threads with i < n.
-      zh: 用 blockIdx、blockDim、threadIdx 算出每个线程的全局下标，并用 i < n 挡住多出来的线程。
+      zh: 用 blockIdx、blockDim、threadIdx 算出每个线程的全局编号，并用 i < n 排除多出的线程。
   - slug: two-elements-per-thread
-    title: { en: Two Elements per Thread, zh: 一个线程算两个元素 }
+    title: { en: Two Elements per Thread, zh: 一个线程计算两个元素 }
     status: published
     difficulty: easy
     summary:
       en: "Half as many threads as elements: each thread covers two, checking the second against n."
-      zh: 线程数只有元素的一半：重新推导下标公式，让每个线程算两个元素，第二个要单独和 n 比。
+      zh: 线程数只有元素数的一半：重新推导下标公式，让每个线程计算两个元素，第二个元素要单独与 n 比较。
