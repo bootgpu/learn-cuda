@@ -25,12 +25,29 @@ questions:
     accept: { numeric: 2 }
     explanation: Block 0 covers 0–255, block 1 covers 256–511, block 2 covers 512–767. 600 = 2 × 256 + 88, so it is the thread with `threadIdx.x` 88 in block 2.
 
-  - id: idle-threads
+  - id: threads-per-line
     type: blank
     prompt: |-
-      `n = 1000`, each block has 256 threads, and the number of blocks is `(n + 256 - 1) / 256`. How many threads are stopped by `if (i < n)` and do nothing?
-    accept: { numeric: 24 }
-    explanation: (1000 + 255) / 256 is 4 in integer division, so 4 × 256 = 1024 threads are launched. The 24 threads with `i` from 1000 to 1023 are past the end of the array and the `if` stops them.
+      Here is a kernel and the host code that launches it:
+
+      ```cpp
+      __global__ void saxpy(float a, const float* x, float* y, int n) {
+          int i = blockIdx.x * blockDim.x + threadIdx.x;  // ①
+          if (i < n) {
+              y[i] = a * x[i] + y[i];                     // ②
+          }
+      }
+
+      // host
+      int n = 3000;
+      int threads = 256;
+      int blocks = (n + threads - 1) / threads;
+      saxpy<<<blocks, threads>>>(2.0f, d_x, d_y, n);
+      ```
+
+      How many threads execute line ①, and how many execute line ②? Enter the two numbers in order.
+    accept: { sequence: [3072, 3000] }
+    explanation: '`(3000 + 255) / 256` is 12 in integer division, so 12 × 256 = 3072 threads are launched, and every one of them runs ①. Only the 3000 threads with `i` from 0 to 2999 pass `if (i < n)` and run ②; the 72 threads with `i` from 3000 to 3071 stop at the `if`.'
 
   - id: block-order
     type: single

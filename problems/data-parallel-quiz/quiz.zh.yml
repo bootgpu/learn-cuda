@@ -21,10 +21,27 @@ questions:
       处理 `i = 600` 这个元素的线程，它的 `blockIdx.x` 是几？
     explanation: 0 号 block 管 0–255，1 号管 256–511，2 号管 512–767。600 = 2 × 256 + 88，所以是 2 号 block 里 `threadIdx.x` 为 88 的线程。
 
-  - id: idle-threads
+  - id: threads-per-line
     prompt: |-
-      `n = 1000`，每个 block 256 个线程，block 个数按 `(n + 256 - 1) / 256` 算。一共有多少个线程会被 `if (i < n)` 挡住、什么也不做？
-    explanation: (1000 + 255) / 256 整数相除得 4，共开 4 × 256 = 1024 个线程。`i` 从 1000 到 1023 的 24 个线程超出数组，被 `if` 挡住。
+      下面是一个 kernel 和启动它的 host 代码：
+
+      ```cpp
+      __global__ void saxpy(float a, const float* x, float* y, int n) {
+          int i = blockIdx.x * blockDim.x + threadIdx.x;  // ①
+          if (i < n) {
+              y[i] = a * x[i] + y[i];                     // ②
+          }
+      }
+
+      // host
+      int n = 3000;
+      int threads = 256;
+      int blocks = (n + threads - 1) / threads;
+      saxpy<<<blocks, threads>>>(2.0f, d_x, d_y, n);
+      ```
+
+      有多少个线程执行了 ① 这一行？多少个线程执行了 ② 这一行？按顺序填两个数。
+    explanation: '`(3000 + 255) / 256` 整数相除得 12，共开 12 × 256 = 3072 个线程，每个线程都会执行 ①。只有 `i` 在 0 到 2999 的 3000 个线程通过 `if (i < n)`、执行 ②；`i` 在 3000 到 3071 的 72 个线程到 `if` 就结束了。'
 
   - id: block-order
     prompt: 一个 kernel 里，1 号 block 的线程要读 0 号 block 刚写进数组的值，代码假定 0 号 block 已经先跑完。这样写可靠吗？
