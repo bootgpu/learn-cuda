@@ -47,8 +47,10 @@ jobs:
           cp "$RUNNER_TEMP/package.json" "courses/$slug.json"
           git add "courses/$slug.json"
           if git diff --cached --quiet; then echo "unchanged"; exit 0; fi
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            commit -q -m "courses: $slug at ${GITHUB_REPOSITORY}@${GITHUB_SHA::7}"
+          # set in config, not -c: the rebase below also needs an identity
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -q -m "courses: $slug at ${GITHUB_REPOSITORY}@${GITHUB_SHA::7}"
           # another course may have pushed meanwhile
           for i in 1 2 3; do
             git push origin HEAD:main && exit 0
