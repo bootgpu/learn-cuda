@@ -1,0 +1,117 @@
+questions:
+  - id: speedup
+    type: blank
+    prompt: An image-processing program takes 90 seconds on the CPU. After it is rewritten for the GPU, it takes 6 seconds. What is the speedup?
+    accept: { numeric: 15 }
+    explanation: Speedup = old time ÷ new time = 90 ÷ 6 = 15.
+
+  - id: more-cores
+    type: single
+    prompt: A single-threaded program, written to run step by step, runs on a 4-core computer. It moves to a 16-core computer whose cores are each as fast as before. Roughly how much faster does it get?
+    options:
+      - About 4 times, since there are 4 times as many cores
+      - About 16 times, since every core gets some work
+      - About the same, since it can only use one core
+      - About 2 times, since the extra cores take some load
+    answer: 2
+    feedback:
+      0: One thread runs on one core at a time, so the extra cores sit idle.
+      1: Only one core has work; the program would have to be split into many threads first.
+      3: Nothing in the program hands work to the extra cores.
+    explanation: A thread runs on one core at a time. A program written step by step is a single thread, so however many cores there are, it uses one of them, and that core is no faster than before. To speed up with more cores, the program has to be split into threads that can run at the same time.
+
+  - id: throughput-task
+    type: single
+    prompt: Which task cares most about throughput, getting as much done as possible in the same time, rather than how fast any single item finishes?
+    options:
+      - How soon the character jumps after the player presses the key
+      - Making a thumbnail for each of 100,000 photos
+      - How fast suggestions pop up as you type in a search box
+      - How soon a web page reacts after you click a button
+    answer: 1
+    feedback:
+      0: The player waits for this one jump, so what matters is how long it takes, which is latency.
+      2: The user waits for each suggestion, so what matters is latency.
+      3: The user waits for this one reaction, so what matters is latency.
+    explanation: No one waits for a particular thumbnail; what matters is finishing all 100,000 as soon as possible, so this is throughput-oriented. Each thumbnail is made on its own, so the work can be spread over many threads, which suits the GPU. In the other three, someone is waiting for one result, which is latency.
+
+  - id: idle-cores
+    type: single
+    prompt: A GPU program launches exactly as many threads as the GPU has cores. Measurements show the cores often sit idle with nothing to do. What is the most likely reason?
+    options:
+      - Each core is small, so one operation takes a long time
+      - Too many threads, so the cores are busy switching between them
+      - The clock speed is low, so every instruction runs slowly
+      - Too few threads to switch to while one waits on memory
+    answer: 3
+    feedback:
+      0: Slow computation keeps a core busy; it does not leave it idle.
+      1: As many threads as cores is not many; and switching threads is exactly how the GPU fills the waiting time.
+      2: Slow instructions keep a core busy; they do not leave it idle.
+    explanation: A thread that fetches data from GPU memory often waits a long time. With many threads, the core switches to another one while it waits. With only one thread per core, when that thread waits, the core has no other thread to switch to and sits idle. Only with enough threads is the waiting hidden.
+
+  - id: cpu-or-gpu
+    type: multiple
+    prompt: Which of these jobs are a good fit for the GPU?
+    options:
+      - Read a config file to decide which filter to use this time
+      - Adjust the brightness of each pixel of a 20-megapixel photo
+      - Convert 1 million temperatures from Celsius to Fahrenheit
+      - Iterate step by step, where each step needs the previous step's result
+    answers: [1, 2]
+    explanation: The GPU suits work with lots of data that can all be processed at once, such as the 20 million pixels and the 1 million temperatures, each computed on its own. Reading the config is a small job done once, and in the step-by-step iteration each step waits for the one before, so it can only run in order; both are serial and stay on the CPU.
+
+  - id: amdahl-speedup
+    type: blank
+    prompt: A program spends 80% of its running time in a part that can run in parallel and 20% in a serial part. The parallel part moves to the GPU and becomes 4 times faster; the serial part stays the same. What is the overall speedup?
+    accept: { numeric: 2.5 }
+    explanation: 'Take the old total time as 100%. The serial part is still 20%, and the parallel part is 80% ÷ 4 = 20%, so the new total is 40%. Overall speedup = 100% ÷ 40% = 2.5.'
+
+  - id: serial-limit
+    type: blank
+    prompt: For the overall speedup to have an upper limit of at least 50 times, at most what percentage of the running time can the serial part take? (Enter the number before the percent sign; for 30%, enter 30.)
+    accept: { numeric: 2 }
+    explanation: However fast the parallel part gets, its time can shrink at most to zero, so the total time is at least the serial part. If the serial part is 2%, the total is at least 2% of the old time and the upper limit is 100% ÷ 2% = 50 times; any more than 2% and the limit falls below 50.
+
+  - id: memory-bound
+    type: single
+    prompt: A GPU program reads two numbers from GPU memory for every single addition, and is known to be held back by moving data. It moves to a GPU with twice as many compute units and the same memory bandwidth. What is most likely to happen?
+    options:
+      - Almost no change, since moving data is what holds it back
+      - About 2 times faster, since twice as much can be computed at once
+      - Slower, since more compute units fight over memory
+    answer: 0
+    feedback:
+      1: The compute units were already waiting for data; more of them just wait together.
+      2: More compute units do not slow down moving data; the bandwidth is the same, so the speed stays about the same.
+    explanation: The program is memory-bound. However fast the computing gets, it still waits for data, and the bandwidth has not changed, so the speed barely changes. To speed it up, it needs more bandwidth or fewer trips to memory.
+
+  - id: fair-speedup
+    type: single
+    prompt: 'An article says: "Our GPU version is 300 times faster than the CPU version." On a closer look, the CPU version used only 1 core and was not optimized. Which reading is most reasonable?'
+    options:
+      - All 300 times is the GPU's doing; any CPU version would give about the same
+      - The GPU's peak is 300 times the CPU's, so the number is normal
+      - The slow CPU version inflated it; a tuned multicore one would shrink it
+      - Using 1 core makes the comparison fairer, so the claim can be quoted as is
+    answer: 2
+    feedback:
+      0: The speedup divides by the CPU version's time; the slower that version, the bigger the number.
+      1: The peak gap between the latest GPU and the strongest server CPU is about 10 times, not 300.
+      3: The strongest server CPUs have over a hundred cores; comparing against one unoptimized core shortchanges the CPU.
+    explanation: Speedup = CPU time ÷ GPU time, so a slow CPU version makes the number bigger. Part of the 300 times comes from the GPU, and part from the CPU version running on one core without optimization. Against a tuned multicore CPU version, the number would be much smaller.
+
+  - id: uneven-data
+    type: single
+    prompt: To count the words on each line of a document, one thread handles one line. Some lines have thousands of words, others only a few. Which of the difficulties of parallel programs does this run into?
+    options:
+      - 'Speed depends on the input: some threads swamped, others idle'
+      - The parallel algorithm does much more total work than the serial one
+      - 'It is held back by moving data: it is memory-bound'
+      - Threads have to cooperate, so they wait for each other
+    answer: 0
+    feedback:
+      1: Counting words line by line does the same total work as doing it serially; the work is just unevenly divided.
+      2: The problem is not how fast data moves but that some threads have far more work than others.
+      3: Each thread counts only its own line and does not need the others.
+    explanation: How long a thread runs depends on how long its line is. The threads with short lines finish early and sit idle, while the program waits for the threads with long lines. With uneven data, how fast a parallel program runs depends on the input.

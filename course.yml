@@ -12,6 +12,7 @@ parts:
       en: GPU Programming Foundations
       zh: GPU 编程基础
     chapters:
+      - introduction
       - data-parallel
       - multidim-grids
       - compute-architecture
