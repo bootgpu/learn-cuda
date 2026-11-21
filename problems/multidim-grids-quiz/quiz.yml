@@ -9,7 +9,7 @@ questions:
       dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
       ```
 
-      The kernel stops the threads outside the image with `if (col < width && row < height)`. Enter four numbers in order, separated by commas:
+      The kernel stops the threads outside the image with `if (col < width && row < height)`. Based on the above, answer the questions below, entering four numbers in order, separated by commas:
 
       1. How many threads does each block have?
       2. How many blocks does the grid have?

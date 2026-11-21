@@ -8,7 +8,7 @@ questions:
       dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
       ```
 
-      kernel 里用 `if (col < width && row < height)` 挡住图片外的线程。按顺序填四个数，用逗号隔开：
+      kernel 里用 `if (col < width && row < height)` 挡住图片外的线程。请根据上述内容，回答下列问题，要求按顺序填四个数，用逗号隔开：
 
       1. 每个 block 有多少个线程？
       2. grid 里一共有多少个 block？
