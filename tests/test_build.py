@@ -103,12 +103,19 @@ def test_quiz_package(quiz):
     assert qualifier["accept"] == {"exact": ["__global__"], "caseSensitive": False}
 
 
-def test_draft_has_no_content(bank):
-    _, pkg = build.build(course(bank, "draft"), "abc1234")
-    assert pkg["stages"] == {}
+def test_draft_has_content(bank):
+    root = course(bank, "draft")
+    _, pkg = build.build(root, "abc1234")
+    assert list(pkg["stages"]) == ["map"]
+    assert list(pkg["chapters"]) == ["basics"]
+    assert pkg["parts"][0]["chapters"][0]["reading"] is True
+    assert pkg["parts"][0]["chapters"][0]["stages"][0]["status"] == "draft"
+    for f in ("reading.md", "reading.zh.md"):
+        (root / "chapters/basics" / f).unlink()
+    _, pkg = build.build(root, "abc1234")
+    assert list(pkg["stages"]) == ["map"]
     assert pkg["chapters"] == {}
     assert pkg["parts"][0]["chapters"][0]["reading"] is False
-    assert pkg["parts"][0]["chapters"][0]["stages"][0]["status"] == "draft"
 
 
 def test_refuses_errors(bank):

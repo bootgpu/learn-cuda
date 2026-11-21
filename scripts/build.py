@@ -1,5 +1,5 @@
 """Build the course package bootgpu-api serves (its docs/00-design.md §7): one JSON file with the catalog
-and every published stage.
+and every published stage, plus every draft stage that has its problem dir (for preview.bootgpu.com).
 
 Usage: uv run scripts/build.py [-o build/<slug>.json]
 
@@ -137,8 +137,17 @@ def build(root: Path, commit: str) -> tuple[list[str], dict | None]:
     if errors:
         return errors, None
     _, stages = course_stages(root)
-    # validate_course made every chapter with a published stage carry its reading.
-    readings = {s["chapter"] for s in stages.values() if s["status"] == "published"}
+    shown = {
+        slug: s
+        for slug, s in stages.items()
+        if s["status"] == "published" or (s["status"] == "draft" and (pdir / slug).is_dir())
+    }
+    # validate_course made every chapter with a published stage carry its reading; a draft's may lack one.
+    readings = {
+        s["chapter"]
+        for s in shown.values()
+        if (root / "chapters" / s["chapter"] / validate.READING[0]).is_file()
+    }
     parts = []
     for part in course["parts"]:
         chapters = []
@@ -176,11 +185,7 @@ def build(root: Path, commit: str) -> tuple[list[str], dict | None]:
             }
             for c in sorted(readings)
         },
-        "stages": {
-            slug: stage_package(pdir / slug, gpus, s)
-            for slug, s in stages.items()
-            if s["status"] == "published"
-        },
+        "stages": {slug: stage_package(pdir / slug, gpus, s) for slug, s in shown.items()},
     }
 
 
@@ -203,7 +208,7 @@ def main(argv: list[str]) -> int:
     out = args.output or ROOT / "build" / f"{pkg['slug']}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(pkg, ensure_ascii=False, indent=2) + "\n")
-    print(f"{out}: {len(pkg['stages'])} published stages, {out.stat().st_size / 1024:.0f} KiB")
+    print(f"{out}: {len(pkg['stages'])} published and draft stages, {out.stat().st_size / 1024:.0f} KiB")
     return 0
 
 
