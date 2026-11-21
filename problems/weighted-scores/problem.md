@@ -10,14 +10,16 @@ totals[i] = scores[i][0] × weights[0]
           + scores[i][subjects - 1] × weights[subjects - 1]
 ```
 
-All numbers are 32-bit floats. The given `solve` launches one-dimensional threads by the number of
-students, 256 per block, and each thread computes one student's total.
+All numbers are 32-bit floats.
+
+The `solve` function is fixed (see `harness.cu`): it launches one-dimensional threads by the number
+of students, 256 per block, with the grid rounded up. Each thread computes one student's total.
 
 ## Implementation Requirements
 
 - External libraries are not permitted
-- Implement `weightedScoresKernel`; the given `solve` already launches it
-- The signature of `solve` must remain unchanged
+- Implement `weightedScoresKernel`, keeping its name and parameters
+- Do not write `solve`; the judge supplies it
 - The final result must be stored in `totals`
 - Do not modify the inputs or access memory outside the given arrays
 

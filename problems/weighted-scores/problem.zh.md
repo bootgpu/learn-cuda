@@ -9,13 +9,16 @@ totals[i] = scores[i][0] × weights[0]
           + scores[i][subjects - 1] × weights[subjects - 1]
 ```
 
-所有数都是 32 位浮点数。给定的 `solve` 按学生数启动一维的线程，每个 block 256 个，每个线程算一名学生的总分。
+所有数都是 32 位浮点数。
+
+`solve` 是固定的（见 `harness.cu`）：按学生数启动一维的线程，每个 block 256 个，grid 向上取整。
+每个线程算一名学生的总分。
 
 ## 实现要求
 
 - 不允许使用外部库
-- 补全 `weightedScoresKernel`；给定的 `solve` 已经会启动它
-- `solve` 函数的签名必须保持不变
+- 补全 `weightedScoresKernel`，名字和参数保持不变
+- 不要写 `solve`，判题时会提供
 - 最终结果必须存放在 `totals` 中
 - 不得修改输入，也不得读写给定数组范围以外的内存
 
