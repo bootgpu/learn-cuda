@@ -45,7 +45,7 @@ questions:
   - id: row-col-major
     type: blank
     prompt: |-
-      A matrix has 30 rows and 50 columns. Take the element at row 7, column 12 (rows and columns count from 0). Enter two numbers in order, separated by a comma:
+      A matrix has 30 rows and 50 columns. Take the element at row 7, column 12 (rows and columns count from 0). Based on the above, answer the questions below, entering two numbers in order, separated by a comma:
 
       1. Its index after flattening in row-major order
       2. Its index after flattening in column-major order

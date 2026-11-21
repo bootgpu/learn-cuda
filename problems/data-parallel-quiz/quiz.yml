@@ -45,7 +45,7 @@ questions:
       saxpy<<<blocks, threads>>>(2.0f, d_x, d_y, n);
       ```
 
-      Enter two numbers in order, separated by a comma:
+      Based on the above, answer the questions below, entering two numbers in order, separated by a comma:
 
       1. How many threads execute line ①?
       2. How many threads execute line ②?
