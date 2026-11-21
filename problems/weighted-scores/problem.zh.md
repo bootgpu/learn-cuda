@@ -3,7 +3,10 @@
 他每科分数乘以该科权重再相加，结果存入 `totals[i]`：
 
 ```
-totals[i] = scores[i][0] × weights[0] + scores[i][1] × weights[1] + … + scores[i][subjects - 1] × weights[subjects - 1]
+totals[i] = scores[i][0] × weights[0]
+          + scores[i][1] × weights[1]
+          + …
+          + scores[i][subjects - 1] × weights[subjects - 1]
 ```
 
 所有数都是 32 位浮点数。给定的 `solve` 按学生数启动一维的线程，每个 block 256 个，每个线程算一名学生的总分。

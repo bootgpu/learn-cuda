@@ -4,7 +4,10 @@ row-major order. `weights` holds one weight for each of the `subjects` subjects.
 each score times that subject's weight, summed, and goes in `totals[i]`:
 
 ```
-totals[i] = scores[i][0] × weights[0] + scores[i][1] × weights[1] + … + scores[i][subjects - 1] × weights[subjects - 1]
+totals[i] = scores[i][0] × weights[0]
+          + scores[i][1] × weights[1]
+          + …
+          + scores[i][subjects - 1] × weights[subjects - 1]
 ```
 
 All numbers are 32-bit floats. The given `solve` launches one-dimensional threads by the number of
