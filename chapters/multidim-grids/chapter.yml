@@ -14,7 +14,11 @@ stages:
       zh: 按行优先算出每个元素在输入和输出中的位置，并自己写出覆盖整个矩阵的二维 grid。
   - slug: video-fade
     title: { en: Video Fade-Out, zh: 视频淡出 }
-    status: wip
+    status: draft
+    difficulty: easy
+    summary:
+      en: Take the frame number from the z thread index, index 3D data frame by frame in row-major order, and use the frame number in the arithmetic.
+      zh: 用 z 方向的线程编号当帧号，按帧、行、列算出三维数据的下标，并让帧号参与计算。
   - slug: weighted-scores
     title: { en: Weighted Scores, zh: 加权总分 }
     status: wip
