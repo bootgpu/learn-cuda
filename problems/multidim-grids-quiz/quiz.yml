@@ -1,0 +1,115 @@
+questions:
+  - id: grid-of-image
+    type: blank
+    prompt: |-
+      An image is 100 pixels wide and 70 pixels high, with one thread per pixel. The launch code is:
+
+      ```cpp
+      dim3 block(32, 8);
+      dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
+      ```
+
+      The kernel stops the threads outside the image with `if (col < width && row < height)`. Enter four numbers in order, separated by commas:
+
+      1. How many threads does each block have?
+      2. How many blocks does the grid have?
+      3. How many threads are launched in total?
+      4. How many threads pass the `if`?
+    accept: { sequence: [256, 36, 9216, 7000] }
+    explanation: Each block has 32 × 8 = 256 threads. The x direction gets (100 + 31) / 32 = 4 blocks and the y direction (70 + 7) / 8 = 9, so there are 4 × 9 = 36 blocks and 36 × 256 = 9216 threads. The image has only 100 × 70 = 7000 pixels, so exactly 7000 threads pass the `if` and the other 2216 are stopped.
+
+  - id: swapped-grid
+    type: blank
+    prompt: |-
+      An image is 100 pixels wide and 70 pixels high. The kernel computes the row and column like this:
+
+      ```cpp
+      int col = blockIdx.x * blockDim.x + threadIdx.x;
+      int row = blockIdx.y * blockDim.y + threadIdx.y;
+      if (col < width && row < height) {
+          // process the pixel at row `row`, column `col`
+      }
+      ```
+
+      The launch code mixes up the two directions of the grid:
+
+      ```cpp
+      dim3 block(16, 16);
+      dim3 grid((height + block.x - 1) / block.x, (width + block.y - 1) / block.y);
+      ```
+
+      As a result, some pixels on the right side of the image are never processed. What is the first column that is not processed (counting from 0)?
+    accept: { numeric: 80 }
+    explanation: The x direction covers columns and should be sized by the width, but here it is sized by the height, giving (70 + 15) / 16 = 5 blocks. That is only 5 × 16 = 80 threads, so `col` goes up to 79 and no thread handles columns 80 to 99. The y direction, sized by the width, gets (100 + 15) / 16 = 7 blocks, or 112 rows of threads. That is more than 70 rows, and the extra threads are stopped by the `if`, so no rows are missed.
+
+  - id: row-col-major
+    type: blank
+    prompt: |-
+      A matrix has 30 rows and 50 columns. Take the element at row 7, column 12 (rows and columns count from 0). Enter two numbers in order, separated by a comma:
+
+      1. Its index after flattening in row-major order
+      2. Its index after flattening in column-major order
+    accept: { sequence: [362, 367] }
+    explanation: 'Row-major: 7 full rows come before it, 50 elements each, so 7 × 50 + 12 = 362. Column-major: 12 full columns come before it, 30 elements each (the height of the matrix), so 12 × 30 + 7 = 367.'
+
+  - id: index-to-row-col
+    type: blank
+    prompt: |-
+      An image 50 pixels wide is flattened in row-major order. Where is the pixel at index 1234 (rows and columns count from 0)? Enter two numbers in order, separated by a comma:
+
+      1. Its row
+      2. Its column
+    accept: { sequence: [24, 34] }
+    explanation: 'Each row holds 50 pixels, and 1234 ÷ 50 = 24 remainder 34. 24 full rows come before it, so it is in row 24; it is 34 pixels into that row, so its column is 34. Check: 24 × 50 + 34 = 1234.'
+
+  - id: index-3d
+    type: blank
+    prompt: A 3D block of data is 40 wide, 25 high and 10 deep. It is flattened one layer after another, each layer in row-major order. x is the column, y the row and z the layer, all counting from 0. What is the index of the element at x = 3, y = 4, z = 2?
+    accept: { numeric: 2163 }
+    explanation: Each layer has 25 × 40 = 1000 elements. 2 full layers come before it, taking 2000; within its layer, 4 full rows of 40 come before it, taking 160; then 3 more. 2000 + 160 + 3 = 2163.
+
+  - id: block-size-limits
+    type: multiple
+    prompt: Which of these block sizes can launch a kernel successfully?
+    options:
+      - '`dim3 block(16, 16, 4)`'
+      - '`dim3 block(32, 32, 2)`'
+      - '`dim3 block(2, 2, 128)`'
+      - '`dim3 block(1024, 1, 1)`'
+    answers: [0, 3]
+    explanation: The number of threads in a block is the product of the three dimensions and cannot exceed 1024; the z dimension on its own cannot exceed 64. 16 × 16 × 4 = 1024, exactly at the limit, so it works; 32 × 32 × 2 = 2048 is too many; 2 × 2 × 128 is only 512 threads, but z is 128, over 64; 1024 × 1 × 1 = 1024 works.
+
+  - id: matmul-column-indexes
+    type: single
+    prompt: |-
+      M, N and P are all n × n matrices stored in row-major order, and P = M × N. Now split the work differently: one thread computes a whole column of P. The thread for column `col` walks down the column with `row` and accumulates with `k`:
+
+      ```cpp
+      sum += M[①] * N[②];
+      ```
+
+      What goes in ① and ②?
+    options:
+      - ① `k * n + row`, ② `k * n + col`
+      - ① `row * n + k`, ② `col * n + k`
+      - ① `row * n + k`, ② `k * n + col`
+      - ① `k * n + col`, ② `row * n + k`
+    answer: 2
+    feedback:
+      0: The value taken from M is at row `row`, column `k`, and its index is the row times n plus the column, `row * n + k`; `k * n + row` is row `k`, column `row`.
+      1: A column of N is not stored contiguously. Row `k`, column `col` is at index `k * n + col`; `col * n + k` is row `col`, column `k`.
+      3: This swaps the indexes of M and N. The value from M comes from row `row`, and the value from N comes from column `col`.
+    explanation: Whichever thread computes it, the element of P at row `row`, column `col` is row `row` of M multiplied element by element with column `col` of N and summed. Row `row`, column `k` of M is at index `row * n + k`, and row `k`, column `col` of N is at index `k * n + col`. Changing the split only changes which elements a thread computes; the index formulas stay the same.
+
+  - id: row-or-column
+    type: single
+    prompt: P = M × N, and P has 4 rows and 2000 columns. One split has each thread compute a whole row of P; another has each thread compute a whole column. Looking only at the number of threads, which one keeps the GPU busier?
+    options:
+      - 'One row per thread: 4 threads, 2000 elements each'
+      - 'One column per thread: 2000 threads, 4 elements each'
+      - 'No difference: either way there are 8000 elements to compute'
+    answer: 1
+    feedback:
+      0: A GPU can run many thousands of threads at once; 4 threads use only a tiny part of it, and the rest sits idle.
+      2: The total work is the same, but the number of threads working at the same time differs by a factor of 500. The more threads the work is split across, the more gets computed at once.
+    explanation: A GPU gets its speed from running many threads at once. Splitting by row gives only 4 threads, while splitting by column gives 2000, which spreads much further across the GPU. If P had 2000 rows and 4 columns instead, splitting by row would be the better choice. Which split is best also depends on how memory is read, which comes back when we cover optimization.

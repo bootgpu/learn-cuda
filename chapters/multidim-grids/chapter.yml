@@ -4,7 +4,10 @@ title:
 stages:
   - slug: multidim-grids-quiz
     title: { en: Chapter Notes and Quiz, zh: 本章学习资料和测验 }
-    status: wip
+    status: draft
+    summary:
+      en: Multidimensional grids with dim3, sizing a grid to an image, block size limits, row-major and column-major flattening, 3D indexes, and splitting matrix multiplication among threads.
+      zh: 用 dim3 开多维 grid、按图片尺寸算 grid、block 尺寸上限、行优先与列优先摊平、三维下标，以及矩阵乘法怎么分给线程。
   - slug: matrix-transpose
     title: { en: Matrix Transpose, zh: 矩阵转置 }
     status: draft
