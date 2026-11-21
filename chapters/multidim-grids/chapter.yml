@@ -2,6 +2,22 @@ title:
   en: Threads over 2D and 3D Data
   zh: 用线程铺满二维、三维数据
 stages:
-  - slug: image-blur
-    title: { en: Image Blur, zh: 图像模糊 }
+  - slug: multidim-grids-quiz
+    title: { en: Chapter Notes and Quiz, zh: 本章学习资料和测验 }
+    status: wip
+  - slug: matrix-transpose
+    title: { en: Matrix Transpose, zh: 矩阵转置 }
+    status: draft
+    difficulty: easy
+    summary:
+      en: Find each element's position in the input and in the output in row-major order, and write a 2D grid that covers the whole matrix.
+      zh: 按行优先算出每个元素在输入和输出中的位置，并自己写出覆盖整个矩阵的二维 grid。
+  - slug: video-fade
+    title: { en: Video Fade-Out, zh: 视频淡出 }
+    status: wip
+  - slug: weighted-scores
+    title: { en: Weighted Scores, zh: 加权总分 }
+    status: wip
+  - slug: matmul-row-per-thread
+    title: { en: One Row per Thread, zh: 一个线程算一整行 }
     status: wip
