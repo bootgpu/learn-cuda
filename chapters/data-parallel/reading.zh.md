@@ -362,5 +362,3 @@ CUDA_CHECK(cudaGetLastError());
 4. 管理显存与传输数据的 API：`cudaMalloc`、`cudaMemcpy`、`cudaFree`，以及用于错误检查的 `cudaGetLastError`、`cudaDeviceSynchronize`。
 
 本章只介绍了 CUDA 中够用的一小部分，其余功能留待后续章节按需介绍。真正的重点在于背后的并行思路：**编写 kernel，就是编写单个线程的工作，即原来循环中的一次迭代。** 整个循环由大量线程取代，所有线程执行同一个 kernel，每个线程依据自己的编号找到负责的元素，并通过 `if` 判断排除多出的线程。
-
-延伸阅读：《Programming Massively Parallel Processors》（第 5 版）第 2 章。
