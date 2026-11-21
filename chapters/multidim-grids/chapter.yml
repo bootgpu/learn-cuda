@@ -28,4 +28,8 @@ stages:
       zh: 用一维的线程处理二维的成绩表：每个线程算一名学生的加权总分，在线程里循环走完这一行。
   - slug: matmul-row-per-thread
     title: { en: One Row per Thread, zh: 一个线程算一整行 }
-    status: wip
+    status: draft
+    difficulty: easy
+    summary:
+      en: "Split matrix multiplication a different way: each thread computes a whole row of the product, looping over every column of that row."
+      zh: 换一种分工做矩阵乘：每个线程算出乘积的一整行，在线程里循环算完这一行的每一列。
