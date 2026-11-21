@@ -360,3 +360,5 @@ The CUDA extensions used in this chapter fall into just four groups:
 4. APIs for device memory and data movement: `cudaMalloc`, `cudaMemcpy`, `cudaFree`, plus `cudaGetLastError` and `cudaDeviceSynchronize` for error checking.
 
 This chapter covers only the small part you need now; other features come later when they are needed. What really matters is the parallel thinking behind it: **writing a kernel means writing only the work of one thread, which is one iteration of the old loop.** The whole loop becomes a large number of threads all running the same kernel; each thread uses its own index to find its own element, and an `if` stops the extra threads.
+
+Further reading: Chapter 2 of _Programming Massively Parallel Processors_ (5th ed.).

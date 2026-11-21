@@ -446,3 +446,5 @@ This chapter answered the question from the start: when the data is 2D or 3D, ho
 **CUDA only gives each thread its indices; how those indices map to the data is up to whoever writes the kernel.** When the mapping is wrong, threads still read and write, they just get the wrong data, and the program often reports no error.
 
 This chapter did not cover how to choose the block size, or how all these threads are executed on the hardware; those are the subject of the _How a GPU Runs Your Threads_ chapter.
+
+Further reading: Chapter 3 of _Programming Massively Parallel Processors_ (5th ed.).
