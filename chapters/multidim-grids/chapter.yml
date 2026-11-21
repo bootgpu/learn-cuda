@@ -21,7 +21,11 @@ stages:
       zh: 用 z 方向的线程编号当帧号，按帧、行、列算出三维数据的下标，并让帧号参与计算。
   - slug: weighted-scores
     title: { en: Weighted Scores, zh: 加权总分 }
-    status: wip
+    status: draft
+    difficulty: easy
+    summary:
+      en: "Threads in one dimension over a 2D table: each thread computes one student's weighted total by looping along that student's row."
+      zh: 用一维的线程处理二维的成绩表：每个线程算一名学生的加权总分，在线程里循环走完这一行。
   - slug: matmul-row-per-thread
     title: { en: One Row per Thread, zh: 一个线程算一整行 }
     status: wip
