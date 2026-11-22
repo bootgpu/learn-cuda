@@ -13,6 +13,8 @@ fahrenheit[i] = celsius[i] * 9 / 5 + 32
 - The final result must be stored in `fahrenheit`
 - Do not modify the input or access memory outside the given arrays
 
+::motion{path="learn-cuda/celsius-to-fahrenheit"}
+
 ## Example 1:
 
 ```
