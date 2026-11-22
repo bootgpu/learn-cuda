@@ -3,6 +3,8 @@ columns, and stores the result in `output`. Transposing swaps rows and columns: 
 column c of `input` goes to row c, column r of `output`, so `output` has `cols` rows and `rows`
 columns. Both matrices are stored in row-major order.
 
+::motion{path="learn-cuda/matrix-transpose"}
+
 Each thread handles one element. `solve` already sets the block to 16 × 16; working out the grid is
 up to you.
 

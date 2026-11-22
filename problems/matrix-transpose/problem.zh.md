@@ -2,6 +2,8 @@
 转置就是行列互换：`input` 第 r 行第 c 列的元素，放到 `output` 第 c 行第 r 列，所以 `output` 有
 `cols` 行、`rows` 列。两个矩阵都按行优先存储。
 
+::motion{path="learn-cuda/matrix-transpose"}
+
 每个线程处理一个元素。`solve` 里 block 已经定为 16 × 16，grid 由你来算。
 
 ## 实现要求
