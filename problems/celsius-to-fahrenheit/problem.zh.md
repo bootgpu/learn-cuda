@@ -4,6 +4,8 @@
 fahrenheit[i] = celsius[i] * 9 / 5 + 32
 ```
 
+::motion{path="learn-cuda/celsius-to-fahrenheit"}
+
 ## 实现要求
 
 - 不允许使用外部库
@@ -11,8 +13,6 @@ fahrenheit[i] = celsius[i] * 9 / 5 + 32
 - `solve` 函数的签名必须保持不变
 - 最终结果必须存放在 `fahrenheit` 中
 - 不得修改输入，也不得读写给定数组范围以外的内存
-
-::motion{path="learn-cuda/celsius-to-fahrenheit"}
 
 ## 示例 1：
 

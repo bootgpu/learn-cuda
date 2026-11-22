@@ -5,6 +5,8 @@ outputs are 32-bit floats, and each thread converts one element:
 fahrenheit[i] = celsius[i] * 9 / 5 + 32
 ```
 
+::motion{path="learn-cuda/celsius-to-fahrenheit"}
+
 ## Implementation Requirements
 
 - External libraries are not permitted
@@ -12,8 +14,6 @@ fahrenheit[i] = celsius[i] * 9 / 5 + 32
 - The `solve` function signature must remain unchanged
 - The final result must be stored in `fahrenheit`
 - Do not modify the input or access memory outside the given arrays
-
-::motion{path="learn-cuda/celsius-to-fahrenheit"}
 
 ## Example 1:
 
