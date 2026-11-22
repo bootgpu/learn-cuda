@@ -3,6 +3,8 @@ Write a GPU program that fades out a grayscale video, darkening it bit by bit, a
 is a brightness stored as a 32-bit float. Every pixel of frame t (counting from 0) is multiplied by
 `(frames - t) / frames`: frame 0 stays as it is, and each later frame is darker.
 
+::motion{path="learn-cuda/video-fade"}
+
 Both `input` and `output` are stored frame after frame, each frame in row-major order.
 
 The `solve` function is fixed (see `harness.cu`): the block is 8 × 8 × 4 and the grid is rounded

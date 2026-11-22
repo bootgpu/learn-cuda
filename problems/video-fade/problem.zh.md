@@ -2,6 +2,8 @@
 每帧 `height` 行、`width` 列，每个像素是一个 32 位浮点数的亮度。第 t 帧（t 从 0 数起）的每个像素都乘以
 `(frames - t) / frames`：第 0 帧保持原样，越往后越暗。
 
+::motion{path="learn-cuda/video-fade"}
+
 `input` 和 `output` 都是一帧接一帧存放，每帧内按行优先存储。
 
 `solve` 是固定的（见 `harness.cu`）：block 是 8 × 8 × 4，grid 在三个方向上都向上取整；x 对应列，
