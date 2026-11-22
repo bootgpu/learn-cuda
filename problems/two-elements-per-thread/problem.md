@@ -3,6 +3,8 @@ stores the sums in `c`. The `solve` function is fixed (see `harness.cu`): it lau
 for every two elements, so each thread computes two elements. Which two is up
 to you, as long as every element is covered.
 
+::motion{path="learn-cuda/two-elements-per-thread"}
+
 ## Implementation Requirements
 
 - External libraries are not permitted

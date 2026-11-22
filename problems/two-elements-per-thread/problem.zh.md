@@ -2,6 +2,8 @@
 `solve` 是固定的（见 `harness.cu`）：它按每个线程两个元素启动线程，所以每个线程要算两个元素。
 具体算哪两个由你决定，只要覆盖每一个元素。
 
+::motion{path="learn-cuda/two-elements-per-thread"}
+
 ## 实现要求
 
 - 不允许使用外部库
