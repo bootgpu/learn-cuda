@@ -43,8 +43,10 @@ class Problem(ProblemBase):
             self._random(2),
             self._random(511),
             self._random(512),
-            # A second block: its first element is 512, not 256.
+            # A second block: its first element is 512. Forgetting the 2 on blockIdx (second block
+            # starting at 256) still passes here, since the overlap recomputes the same values.
             self._random(513),
+            # ...but not here: that mistake leaves c[768:] unwritten.
             self._random(1001),
             self._random(9999),
         ]
