@@ -55,7 +55,7 @@ questions:
   - id: index-to-row-col
     type: blank
     prompt: |-
-      An image 50 pixels wide is flattened in row-major order. Where is the pixel at index 1234 (rows and columns count from 0)? Enter two numbers in order, separated by a comma:
+      An image 50 pixels wide is flattened in row-major order. Take the pixel at index 1234 (rows and columns count from 0). Based on the above, answer the questions below, entering two numbers in order, separated by a comma:
 
       1. Its row
       2. Its column

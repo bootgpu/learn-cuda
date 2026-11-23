@@ -92,7 +92,7 @@ questions:
       What happens?
     options:
       - It prints the first result
-      - 'Error: the host cannot read device memory'
+      - 'It crashes: host cannot read device memory'
       - 'Compile error: host code cannot mention `d_c`'
       - 'It prints 0: the kernel has not finished yet'
     answer: 1

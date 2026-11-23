@@ -7,7 +7,7 @@ questions:
 
   - id: more-cores
     type: single
-    prompt: A single-threaded program, written to run step by step, runs on a 4-core computer. It moves to a 16-core computer whose cores are each as fast as before. Roughly how much faster does it get?
+    prompt: A program written to run step by step, in order, runs on a 4-core computer. It moves to a 16-core computer whose cores are each as fast as before. Roughly how much faster does it get?
     options:
       - About 4 times, since there are 4 times as many cores
       - About 16 times, since every core gets some work
@@ -25,7 +25,7 @@ questions:
     prompt: Which task cares most about throughput, getting as much done as possible in the same time, rather than how fast any single item finishes?
     options:
       - How soon the character jumps after the player presses the key
-      - Making a thumbnail for each of 100,000 photos
+      - How soon thumbnails for all 100,000 photos are done
       - How fast suggestions pop up as you type in a search box
       - How soon a web page reacts after you click a button
     answer: 1
@@ -103,7 +103,7 @@ questions:
 
   - id: uneven-data
     type: single
-    prompt: To count the words on each line of a document, one thread handles one line. Some lines have thousands of words, others only a few. Which of the difficulties of parallel programs does this run into?
+    prompt: To count the words on each line of a document, one thread handles one line. Some lines have thousands of words, others only a few. Which of the difficulties of parallel programs does this gap in line length cause?
     options:
       - 'Speed depends on the input: some threads swamped, others idle'
       - The parallel algorithm does much more total work than the serial one
@@ -112,6 +112,6 @@ questions:
     answer: 0
     feedback:
       1: Counting words line by line does the same total work as doing it serially; the work is just unevenly divided.
-      2: The problem is not how fast data moves but that some threads have far more work than others.
+      2: Memory-bound is about data moving too slowly; the gap in line length has nothing to do with that, it gives some threads far more work than others.
       3: Each thread counts only its own line and does not need the others.
     explanation: How long a thread runs depends on how long its line is. The threads with short lines finish early and sit idle, while the program waits for the threads with long lines. With uneven data, how fast a parallel program runs depends on the input.
