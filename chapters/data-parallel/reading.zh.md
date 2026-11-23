@@ -1,4 +1,4 @@
-::bilibili[第 2 章视频：从循环到 kernel]{bvid="BV1nkW962EJS"}
+::bilibili[第 2 章视频：第一个 CUDA 程序]{bvid="BV1nkW962EJS"}
 
 本页汇总视频中的代码与公式，做题时可以直接对照。最后两节是视频没有展开、做题时要用到的内容。
 

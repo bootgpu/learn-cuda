@@ -1,4 +1,4 @@
-::bilibili[Chapter 2 video: From Loops to Kernels]{bvid="BV1nkW962EJS"}
+::bilibili[Chapter 2 video: Your First CUDA Program]{bvid="BV1nkW962EJS"}
 
 The video is in Chinese for now; an English version is coming.
 

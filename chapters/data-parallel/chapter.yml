@@ -1,6 +1,6 @@
 title:
-  en: From Loops to Kernels
-  zh: 从循环到 kernel
+  en: Your First CUDA Program
+  zh: 第一个 CUDA 程序
 stages:
   - slug: data-parallel-quiz
     title: { en: Chapter Notes and Quiz, zh: 本章学习资料和测验 }
