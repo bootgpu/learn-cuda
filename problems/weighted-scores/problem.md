@@ -10,6 +10,8 @@ totals[i] = scores[i][0] × weights[0]
           + scores[i][subjects - 1] × weights[subjects - 1]
 ```
 
+::motion{path="learn-cuda/weighted-scores"}
+
 All numbers are 32-bit floats.
 
 The `solve` function is fixed (see `harness.cu`): it launches one-dimensional threads by the number

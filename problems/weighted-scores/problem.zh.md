@@ -9,6 +9,8 @@ totals[i] = scores[i][0] × weights[0]
           + scores[i][subjects - 1] × weights[subjects - 1]
 ```
 
+::motion{path="learn-cuda/weighted-scores"}
+
 所有数都是 32 位浮点数。
 
 `solve` 是固定的（见 `harness.cu`）：按学生数启动一维的线程，每个 block 256 个，grid 向上取整。
