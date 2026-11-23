@@ -4,7 +4,7 @@ title:
 stages:
   - slug: introduction-quiz
     title: { en: Chapter Notes and Quiz, zh: 本章学习资料和测验 }
-    status: draft
+    status: published
     summary:
       en: Why programs stopped getting faster on their own, latency versus throughput, splitting work between CPU and GPU, speedup and Amdahl's law, and what makes parallel programs hard to make fast.
       zh: 程序为什么不再自动变快、延迟导向与吞吐导向、CPU 与 GPU 怎么分工、加速比与阿姆达尔定律，以及并行程序难在哪里。
