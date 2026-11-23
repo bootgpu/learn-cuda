@@ -18,7 +18,7 @@ problems/<slug>/
   harness.cu                       optional: a fixed solve() that includes solution.cu; the judge compiles it instead
 bootgpu.toml                       runtime, GPUs and time limit
 scripts/                           validate.py, verify.py, build.py
-archive/                           the earlier learn-cuda-basics outline and problems, not published
+archive/                           the earlier learn-cuda-basics outline and problems, plus retired problems; not published
 ```
 
 ## Checks

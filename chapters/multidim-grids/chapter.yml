@@ -4,35 +4,28 @@ title:
 stages:
   - slug: multidim-grids-quiz
     title: { en: Chapter Notes and Quiz, zh: 本章学习资料和测验 }
-    status: draft
+    status: published
     summary:
       en: Multidimensional grids with dim3, sizing a grid to an image, block size limits, row-major and column-major flattening, 3D indexes, and splitting matrix multiplication among threads.
       zh: 用 dim3 开多维 grid、按图片尺寸算 grid、block 尺寸上限、行优先与列优先摊平、三维下标，以及矩阵乘法怎么分给线程。
   - slug: matrix-transpose
     title: { en: Matrix Transpose, zh: 矩阵转置 }
-    status: draft
+    status: published
     difficulty: easy
     summary:
       en: Find each element's position in the input and in the output in row-major order, and write a 2D grid that covers the whole matrix.
       zh: 按行优先算出每个元素在输入和输出中的位置，并自己写出覆盖整个矩阵的二维 grid。
   - slug: video-fade
     title: { en: Video Fade-Out, zh: 视频淡出 }
-    status: draft
+    status: published
     difficulty: easy
     summary:
       en: Take the frame number from the z thread index, index 3D data frame by frame in row-major order, and use the frame number in the arithmetic.
       zh: 用 z 方向的线程编号当帧号，按帧、行、列算出三维数据的下标，并让帧号参与计算。
   - slug: weighted-scores
     title: { en: Weighted Scores, zh: 加权总分 }
-    status: draft
+    status: published
     difficulty: easy
     summary:
       en: "Threads in one dimension over a 2D table: each thread computes one student's weighted total by looping along that student's row."
       zh: 用一维的线程处理二维的成绩表：每个线程算一名学生的加权总分，在线程里循环走完这一行。
-  - slug: matmul-row-per-thread
-    title: { en: One Row per Thread, zh: 一个线程算一整行 }
-    status: draft
-    difficulty: easy
-    summary:
-      en: "Split matrix multiplication a different way: each thread computes a whole row of the product, looping over every column of that row."
-      zh: 换一种分工做矩阵乘：每个线程算出乘积的一整行，在线程里循环算完这一行的每一列。
