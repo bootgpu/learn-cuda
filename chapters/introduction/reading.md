@@ -1,6 +1,4 @@
-::bilibili[Chapter 1 video: Why GPUs]{bvid="BV176WL6eEPv"}
-
-The video is in Chinese for now; an English version is coming.
+::youtube[Chapter 1 video: Why GPUs]{id="CIDS0tQzGyc"}
 
 This page collects the formulas from the video, so you can look them up while solving the problems.
 

@@ -1,6 +1,4 @@
-::bilibili[Chapter 2 video: Your First CUDA Program]{bvid="BV1nkW962EJS"}
-
-The video is in Chinese for now; an English version is coming.
+::youtube[Chapter 2 video: Your First CUDA Program]{id="P-U7u1PgUio"}
 
 This page collects the code and formulas from the video, so you can look them up while solving the problems. The last two sections cover what the problems need but the video does not go into.
 
