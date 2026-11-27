@@ -1,4 +1,5 @@
-::youtube[Chapter 3 video: Covering 2D and 3D Data with Threads]{id="\_rCf-vHDLUU"}
+<!-- prettier-ignore -->
+::youtube[Chapter 3 video: Covering 2D and 3D Data with Threads]{id="_rCf-vHDLUU"}
 
 This page collects the code and formulas from the video, so you can look them up while solving the problems.
 
