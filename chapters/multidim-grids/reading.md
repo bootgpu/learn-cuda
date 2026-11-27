@@ -1,6 +1,4 @@
-::bilibili[Chapter 3 video: Covering 2D and 3D Data with Threads]{bvid="BV1EisH6sEG3"}
-
-The video is in Chinese for now; an English version is coming.
+::youtube[Chapter 3 video: Covering 2D and 3D Data with Threads]{id="\_rCf-vHDLUU"}
 
 This page collects the code and formulas from the video, so you can look them up while solving the problems.
 
